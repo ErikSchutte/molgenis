@@ -9,7 +9,7 @@ import org.molgenis.data.QueryRule;
 
 public class EntityCollectionRequest
 {
-	public static final int MAX_ROWS = 10000;
+	public static final int MAX_ROWS = 100000;
 	public static final int DEFAULT_ROW_COUNT = 100;
 	private List<QueryRule> q;
 	private SortV1 sort;
