@@ -1,49 +1,82 @@
 <#include "molgenis-header.ftl">
 <#include "molgenis-footer.ftl">
 
-<#assign css=['lncrna-explorer.css']>
-<#assign js=['lncrna-explorer.js']>
+<#assign css=[
+				"lncrna-explorer.css",
+			 	"jquery.molgenis.tree.css",
+				"ui.fancytree.min.css"]>
+<#assign js=[
+				"lncrna-explorer.js",
+				"file-upload.js",
+				"bootstrap.file-input.js",
+				"jquery.bootstrap.wizard.min.js",
+				"jquery.fancytree.min.js",
+				"jquery.molgenis.tree.js",
+				"jquery.molgenis.xrefmrefsearch.js",
+				"bootbox.min.js",
+				"jQEditRangeSlider-min.js"]>
 
 <@header css js/>
 
-<div class="row">
-	<div class="col-md-12">
-	    <h1> LncRNA Explorer </h1>
-	</div>
-</div>
+<div class="col-md-12">
+	<div role= "tabpanel">
+		<ul class="nav nav-tabs" role="tablist">
+			<li role="tab" class="active"> <a href="#lncrna-explorer" aria-controls="lncrna-explorer" role="presentation" data-toggle="tab">LncRNA Explorer</a></li>
+			<li role="tab"><a href="#cell-counts" aria-controls="cell-counts" role="presentation" data-toggle="tab">Cell Counts Predictor</a></li>
+		</ul>
+
+		<div class="tab-content">
+			<div  role="tabpanel" class="tab-pane active" id="lncrna-explorer">
+				<div class="row">
+					<div class="col-md-11">
+	   					 <h1> LncRNA Explorer </h1>
+					</div>
+				</div>
 
 
+				<div class="row">
+					<div class="col-md-4 col-md-offset-4">
+						<div id="entitySelectBox">
+						<#--<div class="log"></div>-->
+							<div class="component" id="entitySelectBoxComponent"></div>
+								<span class="input-group-btn">
+      	 							<button type="btn" class="btn btn-default" id="submit-input">Search</button>
+     	 						</span>
+							<div class="source"></div>			
+						</div>
+					</div>
+				</div>
 
+
+<#--
 <div class="row">
 	<div class="col-md-4 col-md-offset-4">
 
     	<div class="input-group">
 		
       		<input type="text" class="form-control" name="searchTerm" id="search-input" placeholder="GeneName">	
-		<#--<i class="glyphicon glyphicon-search form-control-feedback" aria-hidden="true"></i>-->
+		<#--<i class="glyphicon glyphicon-search form-control-feedback" aria-hidden="true"></i>--><#--
       		<span class="input-group-btn">
       	 		<button type="btn" class="btn btn-default" id="submit-input">Search</button>
      	 	</span>
-   	 	</div><!-- /input-group -->
-	</div><!-- /.col-lg-6 -->
+   	 	</div>
+	</div>
 </div>
+-->
 
-<#--<div class="row">
-	<div class="col-md-12">
-		<p>
-			Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec interdum velit sed est vulputate pellentesque. Donec a tempus ex. 
-			Aenean vel porta est. Nullam ultricies, leo porttitor mattis euismod, enim erat blandit elit, id fringilla massa purus nec neque. 
-			Quisque laoreet quam eget enim fermentum fringilla. Maecenas eu suscipit massa. Aliquam aliquam pellentesque risus. Pellentesque 
-			ante orci, ullamcorper ac leo vel, sodales ullamcorper lectus. Nulla luctus sit amet mauris vel vestibulum. Etiam congue auctor 
-			nulla, sit amet tincidunt velit fringilla quis. Fusce at est massa. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut 
-			rutrum sit amet velit eu mattis. Nullam eu nisl nibh. Praesent mi metus, convallis eget quam nec, aliquam ultrices justo. 
-		</p>
-		
-	</div>		
-</div> -->
-<div class="row">
-	<div class="col-md-10" id="ajaxResponse"></div>
-</div>
+
+				<div class="row">
+					<div class="col-md-11">
+						<p>
+			
+						</p>
+					</div>		
+				</div>
+
+				<div class="row">
+					<div class="col-md-10" id="ajaxResponse"></div>
+				</div>
+			</div>
 <#--
 <div class="row">
 	<div role="tabpanel" class="col-md-10 col-md-offset-1">
@@ -85,22 +118,16 @@
 </div>
 -->
 
+		
+			<div role="tabpanel" class="tab-pane" id="cell-counts">		
+				<form method="post" id="wizardForm" name="wizardForm" enctype="multipart/form-data" action="http://localhost:8080/menu/main/cellcounts/readFile" role="form">	
+					<input type="file" name="upload" data-filename-placement="inside" title="Select a file..." id="input-file">
 
-<div class="modal fade" id="imagemodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title" id="myModalLabel">Image preview</h4>
-      </div>
-      <div class="modal-body">
-        <img src="" id="imagepreview" style="width: 400px; height: 264px;" >
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
+					<button type="submit" class="btn btn-success" id="upload-file">Upload</button>
+				</form>
+			</div>
+		</div>
+	</div>
 </div>
 
 <@footer/>
