@@ -6,7 +6,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import org.molgenis.data.DataService;
 import org.molgenis.data.Entity;
 import org.molgenis.data.support.QueryImpl;
-import org.molgenis.framework.ui.MolgenisPluginController;
+import org.molgenis.ui.MolgenisPluginController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,6 +28,12 @@ public class LncrnaExplorerController extends MolgenisPluginController
 	public LncrnaExplorerController()
 	{
 		super(URI);
+	}
+	
+	@RequestMapping(value = "/deconvolution")
+	public String deconvolutionPlots()
+	{
+		return "view-deconvolution";
 	}
 
 	@RequestMapping
