@@ -8,6 +8,7 @@
 <#assign js=[
 				"lncrna-explorer.js",
 				"file-upload.js",
+				"deconvolution.js"
 				"bootstrap.file-input.js",
 				"jquery.bootstrap.wizard.min.js",
 				"jquery.fancytree.min.js",
@@ -22,14 +23,15 @@
 	<div role= "tabpanel">
 		<ul class="nav nav-tabs" role="tablist">
 			<li role="tab" class="active"> <a href="#lncrna-explorer" aria-controls="lncrna-explorer" role="presentation" data-toggle="tab">LncRNA Explorer</a></li>
-			<li role="tab"><a href="#cell-counts" aria-controls="cell-counts" role="presentation" data-toggle="tab">Cell Counts Predictor</a></li>
+			<li role="tab"><a href="#cell-counts" aria-controls="cell-counts" role="presentation" data-toggle="tab">Decon-cell</a></li>
+			<li role="tab"><a href="#deconvolution-plots" aria-controls="deconvolution-plots" role="presentation" data-toggle="tab">Decon-eQTL</a></li>
 		</ul>
 
 		<div class="tab-content">
-			<div  role="tabpanel" class="tab-pane active" id="lncrna-explorer">
+			<div role="tabpanel" class="tab-pane active" id="lncrna-explorer">
 				<div class="row">
 					<div class="col-md-11">
-	   					 <h1> LncRNA Explorer </h1>
+	   					 <h2> LncRNA Explorer</h2>
 					</div>
 				</div>
 
@@ -37,7 +39,6 @@
 				<div class="row">
 					<div class="col-md-4 col-md-offset-4">
 						<div id="entitySelectBox">
-						<#--<div class="log"></div>-->
 							<div class="component" id="entitySelectBoxComponent"></div>
 								<span class="input-group-btn">
       	 							<button type="btn" class="btn btn-default" id="submit-input">Search</button>
@@ -47,22 +48,6 @@
 					</div>
 				</div>
 
-
-<#--
-<div class="row">
-	<div class="col-md-4 col-md-offset-4">
-
-    	<div class="input-group">
-		
-      		<input type="text" class="form-control" name="searchTerm" id="search-input" placeholder="GeneName">	
-		<#--<i class="glyphicon glyphicon-search form-control-feedback" aria-hidden="true"></i>--><#--
-      		<span class="input-group-btn">
-      	 		<button type="btn" class="btn btn-default" id="submit-input">Search</button>
-     	 	</span>
-   	 	</div>
-	</div>
-</div>
--->
 
 
 				<div class="row">
@@ -77,55 +62,48 @@
 					<div class="col-md-10" id="ajaxResponse"></div>
 				</div>
 			</div>
-<#--
-<div class="row">
-	<div role="tabpanel" class="col-md-10 col-md-offset-1">
-		<ul class="nav nav-tabs" role="tablist">
-  			<li role="tab" class="active"><a href="#expression" aria-controls="expression" role="tab" data-toggle="tab">Expression Data</a></li>
-  			<li role="tab"><a href="#test" aria-controls="test" role="tab" data-toggle="tab">Test</a></li>
-		</ul>
 
-	<div class="tab-content">
-		<div class="tab-pane active" id="expression">
-			<div class="col-md-10" id="ajaxResponse"></div>
-		</div>
-
-		<div class="tab-pane" id="test">
-			Test test test
-		</div>
-	</div>
-</div>
--->
-
-<#--
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
- 	<div class="modal-dialog" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title">Information</h4>
-			</div>
-    		<div class="modal-body">
-    			Information about the plot and the data...<br>
-				Test test test<br>
-				...
-    		</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-			</div>
-  		</div>
-	</div>
-</div>
--->
 
 		
 			<div role="tabpanel" class="tab-pane" id="cell-counts">		
-				<form method="post" id="wizardForm" name="wizardForm" enctype="multipart/form-data" action="http://localhost:8080/menu/main/cellcounts/readFile" role="form">	
-					<input type="file" name="upload" data-filename-placement="inside" title="Select a file..." id="input-file">
+				<div class="row">
+				<div class="col-md-11">
+	   				 <h2> Decon-cell of human blood</h2>
+				</div>
+				<div class="col-md-12">
+					Enter your expression table.  
+					<span class="glyphicon glyphicon-question-sign" aria-hidden="true" style="font-size:1.2em;" data-toggle="popover" data-content="Enter a input matrix in .csv format, with expression counts of one or more samples, library size corrected (number of expression counts/number of total expression counts). The selected human reference assembly is GRCh37, version 71."</span>					
 
-					<button type="submit" class="btn btn-success" id="upload-file">Upload</button>
-				</form>
+
+				</div>
+				</div>
+
+				<div class="row">
+				<div class="col-md-6 col-md-offset-2">	
+					<form method="post" id="wizardForm" name="wizardForm" enctype="multipart/form-data" action="http://localhost:8080/menu/main/cellcounts/readFile" role="form">	
+						<input type="file" name="upload" data-filename-placement="inside" title="Select a file..." id="input-file">
+						<button type="submit" class="btn btn-success" id="upload-file">Upload</button>
+						<a href="http://localhost:8080/menu/main/cellcounts/report/AAAACT6LDTKHHWFCL2LYKRIAAE"> Or start prediction with test data!</a>
+					</form> 
+				</div>
+				</div>
 			</div>
+
+
+			<div role="tabpanel" class="tab-pane" id="deconvolution-plots">		
+				<div class="row">
+				<div class="col-md-10">
+	   				<h2> Deconvoluted eQTLs on immune disease associated SNPs</h2>
+				</div>
+				<div class="col-md-2">
+					<button type="btn" class="btn btn-info" id="show-legend" rel="popover" data-content="">Show tutorial <span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span></button>
+				</div>
+				</div>
+				<div id="deconvolution">
+				</div>
+			</div>
+
+
 		</div>
 	</div>
 </div>

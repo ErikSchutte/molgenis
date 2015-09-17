@@ -1,6 +1,10 @@
 (function($, molgenis) {
 
 	$(function() {
+		$('[data-toggle="popover"]').popover()
+	})
+
+	$(function() {
 		$('ul.pager a').on('click', function(e) {
 			e.preventDefault();
 			if (!$(this).parent().hasClass('disabled')) {
@@ -18,16 +22,14 @@
 		$('input[type=file]').bootstrapFileInput();
 		$('.file-inputs').bootstrapFileInput();
 
-//		$('#upload-file').on('click', function() {
-//			submitFile()
+		// $('#upload-file').on('click', function() {
+		// submitFile()
 
-//		})
+		// })
 
 	});
 
 	function submitFile() {
-
-		alert($('#input-file').val());
 
 		submittedFile = $('#input-file').val();
 
@@ -37,7 +39,6 @@
 			contentType : 'application/json',
 			data : submittedFile,
 			success : function(data) {
-				
 
 			}
 		})

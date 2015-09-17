@@ -82,8 +82,8 @@ public class CellCountsPredictorControllerTest extends AbstractTestNGSpringConte
 		exprImport.set("markerGenesForPct", Arrays.asList(gene1, gene2, gene3));
 
 		when(dataService.findOne("ExprImport", "12345")).thenReturn(exprImport);
-		when(dataService.count("ModelGene", QueryImpl.EQ("markerForCounts", true))).thenReturn(15l);
-		when(dataService.count("ModelGene", QueryImpl.EQ("markerForPct", true))).thenReturn(3l);
+		when(dataService.count("cellcounts_MarkerGenes", QueryImpl.EQ("markerForCounts", true))).thenReturn(15l);
+		when(dataService.count("cellcounts_MarkerGenes", QueryImpl.EQ("markerForPct", true))).thenReturn(3l);
 
 		Model model = new ExtendedModelMap();
 		controller.report("12345", model);

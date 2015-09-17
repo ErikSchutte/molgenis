@@ -1,14 +1,21 @@
 package org.molgenis.cellcounts.controller;
 
+import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.skip;
 import static com.google.common.collect.Iterables.transform;
 import static org.molgenis.cellcounts.controller.CellCountsPredictorController.URI;
+import static org.molgenis.security.core.runas.RunAsSystemProxy.runAsSystem;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -19,7 +26,6 @@ import org.molgenis.data.AttributeMetaData;
 import org.molgenis.data.DataService;
 import org.molgenis.data.Entity;
 import org.molgenis.data.EntityMetaData;
-import org.molgenis.data.MolgenisDataException;
 import org.molgenis.data.MolgenisInvalidFormatException;
 import org.molgenis.data.Repository;
 import org.molgenis.data.RepositoryCollection;
@@ -31,10 +37,12 @@ import org.molgenis.data.support.DefaultEntity;
 import org.molgenis.data.support.DefaultEntityMetaData;
 import org.molgenis.data.support.QueryImpl;
 import org.molgenis.data.support.UuidGenerator;
-import org.molgenis.framework.ui.MolgenisPluginController;
+import org.molgenis.ui.MolgenisPluginController;
+import org.molgenis.ui.menu.MenuReaderService;
 import org.molgenis.util.FileUploadUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -45,13 +53,21 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.Iterables;
 
+import ch.ethz.ssh2.channel.X11ServerData;
+import ch.qos.logback.core.net.SyslogOutputStream;
+
 @Controller
 @RequestMapping(URI)
 public class CellCountsPredictorController extends MolgenisPluginController
 {
+	private static final String GENES_REPOSITORY_ASSOCIATED_GENE_NAME = "AssociatedGeneName";
+	private static final String GENES_REPOSITORY_ENSEMBL_GENE_ID_NAME = "EnsemblGeneID";
+	private static final String GENES_REPOSITORY_NAME = "BioMartGenes";
 	private static final String EXPR_IMPORT_REPOSITORY_NAME = "ExprImport";
 	public static final String ID = "cellcounts";
 	public static final String URI = MolgenisPluginController.PLUGIN_URI_PREFIX + ID;
+
+	private static final Logger LOG = LoggerFactory.getLogger(CellCountsPredictorController.class);
 
 	@Autowired
 	MetaDataService metaDataService;
@@ -62,7 +78,10 @@ public class CellCountsPredictorController extends MolgenisPluginController
 	@Autowired
 	private DataService dataService;
 
-	// @Autowired
+	@Autowired
+	private MenuReaderService menuReaderService;
+
+	ExecutorService executorService = Executors.newFixedThreadPool(2);
 
 	public CellCountsPredictorController()
 	{
@@ -79,14 +98,24 @@ public class CellCountsPredictorController extends MolgenisPluginController
 	public String report(@PathVariable String id, Model model)
 	{
 		Entity exprImport = dataService.findOne(EXPR_IMPORT_REPOSITORY_NAME, id);
-		long totalNumberOfMarkerGenesForCounts = dataService.count("ModelGene", QueryImpl.EQ("markerForCounts", true));
-		long totalNumberOfMarkerGenesForPct = dataService.count("ModelGene", QueryImpl.EQ("markerForPct", true));
+		long totalNumberOfMarkerGenesForCounts = dataService.count("cellcounts_MarkerGenes",
+				QueryImpl.EQ("markerForCounts", true));
+		long totalNumberOfMarkerGenesForPct = dataService.count("cellcounts_MarkerGenes",
+				QueryImpl.EQ("markerForPct", true));
 
 		int numberOfMarkerGenesForCountsImported = Iterables.size(exprImport.getEntities("markerGenesForCounts"));
 		int numberOfMarkerGenesForPctImported = Iterables.size(exprImport.getEntities("markerGenesForPct"));
-		int numberOfSamplesImported = 0; // TODO
+
+		String inputData = exprImport.getString("importedEntity");
+		Iterator<AttributeMetaData> numberOfAttributes = dataService.getRepository(inputData).getEntityMetaData().getAtomicAttributes().iterator();
+		int numberOfSamplesImported = -1;
+		for (; numberOfAttributes.hasNext(); ++numberOfSamplesImported)
+		{
+			numberOfAttributes.next();
+		}
 
 		model.addAttribute("exprImport", exprImport);
+		 model.addAttribute("numberOfSamplesImported", numberOfSamplesImported);
 		model.addAttribute("nrOfMarkerGenesForCounts", totalNumberOfMarkerGenesForCounts);
 		model.addAttribute("nrOfMarkerGenesForPcts", totalNumberOfMarkerGenesForPct);
 		model.addAttribute("numberOfMarkerGenesForCountsImported", numberOfMarkerGenesForCountsImported);
@@ -99,33 +128,75 @@ public class CellCountsPredictorController extends MolgenisPluginController
 	}
 
 	@RequestMapping(value = "/readFile", method = POST)
-	public @ResponseBody String upload(HttpServletRequest request)
-			throws IOException, ServletException, MolgenisInvalidFormatException
+	public String upload(HttpServletRequest request)
+			throws IOException, ServletException, MolgenisInvalidFormatException, Exception
 	{
-		System.out.println("upload");
+		// System.out.println("upload");
 		Part part = request.getPart("upload");
 		if (part != null)
 		{
-			System.out.println("part != null");
 			File file = FileUploadUtils.saveToTempFolder(part);
 			RepositoryCollection repositoryCollection = new CsvRepositoryCollection(file);
 			if (Iterables.size(repositoryCollection) == 1)
 			{
 				Repository r = Iterables.getFirst(repositoryCollection, null);
-				System.out.println(r.getEntityMetaData());
-				System.out.println(r.getEntityMetaData().getAtomicAttributes());
+				// System.out.println(r.getEntityMetaData());
+				// System.out.println(r.getEntityMetaData().getAtomicAttributes());
 				String exprImportID = importCsvRepository(r);
-				return exprImportID;
+				return "redirect:" + getMenuUrl() + "/report/" + exprImportID;
 			}
 		}
 		throw new ServletException("Is iets misgegaan");
 	}
 
-	String importCsvRepository(Repository r)
+	private String getMenuUrl()
+	{
+		return menuReaderService.getMenu().findMenuItemPath(ID);
+	}
+
+	private String importCsvRepository(Repository r)
 	{
 		Repository target = createImportRepository(r);
-		target.add(Iterables.transform(r, entityRow -> transformEntity(r.getEntityMetaData(), entityRow, target.getEntityMetaData())));
-		return createExpressionImport(r);
+		Entity reportEntity = createReportEntity(target);
+
+		// TODO put runAsSystem() back without exception X killing everything
+		try
+		{
+			Callable<Void> task = () -> runAsSystem(() -> {
+				Void importToTargetRepository = importToTargetRepository(r, target, reportEntity);
+				return importToTargetRepository;
+			});
+			executorService.submit(task);
+		}
+		catch (Throwable e)
+		{
+			System.out.println(e);
+		}
+		return reportEntity.getIdValue().toString();
+	}
+
+	private Void importToTargetRepository(Repository r, Repository target, Entity report)
+	{
+		try
+		{
+			Iterable<Entity> transformedRows = transform(r,
+					entityRow -> transformEntity(r.getEntityMetaData(), entityRow, target.getEntityMetaData()));
+			target.add(filter(transformedRows, row -> row != null));
+			updateImportEntityWithStatistics(target, report);
+		}
+		catch (RuntimeException e)
+		{
+			LOG.warn("Failed to import to target repository", e);
+			updateReportEntityWithException(e, report);
+		}
+		return null;
+	}
+
+	private void updateReportEntityWithException(RuntimeException e, Entity report)
+	{
+		report.set("status", "FAILED");
+		report.set("errorMessage", e.getMessage());
+		dataService.update(EXPR_IMPORT_REPOSITORY_NAME, report);
 	}
 
 	/**
@@ -135,17 +206,55 @@ public class CellCountsPredictorController extends MolgenisPluginController
 	 *            the repository that the expression data got imported to
 	 * @return ID of the created instance
 	 */
-	String createExpressionImport(Repository target)
+	private Entity createReportEntity(Repository target)
 	{
 		// maak import rapportje
 		EntityMetaData exprImportMetaData = dataService.getEntityMetaData(EXPR_IMPORT_REPOSITORY_NAME);
 		Entity exprImportEntity = new DefaultEntity(exprImportMetaData, dataService);
-
-		// en nou de samples tellen die in target zitten
-		// en de genen tellen welke marker genes hoeveel
-
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+		exprImportEntity.set("importDate", sdf.format(new Date()));
+		exprImportEntity.set("importedEntity", target.getEntityMetaData().getName());
+		exprImportEntity.set("status", "RUNNING");
 		dataService.add(EXPR_IMPORT_REPOSITORY_NAME, exprImportEntity);
-		return exprImportEntity.getString("id");
+		return exprImportEntity;
+	}
+
+	private void updateImportEntityWithStatistics(Repository target, Entity exprImportEntity)
+	{
+		// en de genen tellen welke marker genes hoeveel
+		ArrayList<String> markerGenesForCounts = new ArrayList<String>();
+		ArrayList<String> markerGenesForPct = new ArrayList<String>();
+		Repository markerGenes = dataService.getRepository("cellcounts_MarkerGenes");
+
+		// Check if gene is marker gene for counts and/or percentages.
+		markerGenes.forEach(entity -> {
+			if (entity.get("markerForCounts").equals(true))
+			{
+				markerGenesForCounts.add(entity.getString("ensemblId"));
+			}
+			if (entity.get("markerForPct").equals(true))
+			{
+				markerGenesForPct.add(entity.getString("ensemblId"));
+			}
+		});
+
+		ArrayList<String> uploadedMarkerGenesForCounts = new ArrayList<String>();
+		ArrayList<String> uploadedMarkerGenesForPct = new ArrayList<String>();
+		target.forEach(entity -> {
+			if (markerGenesForCounts.contains(entity.getString("gene")))
+			{
+				uploadedMarkerGenesForCounts.add(entity.getString("gene"));
+			}
+			if (markerGenesForPct.contains(entity.getString("gene")))
+			{
+				uploadedMarkerGenesForPct.add(entity.getString("gene"));
+			}
+		});
+
+		exprImportEntity.set("markerGenesForCounts", uploadedMarkerGenesForCounts);
+		exprImportEntity.set("markerGenesForPct", uploadedMarkerGenesForPct);
+		exprImportEntity.set("status", "FINISHED");
+		dataService.update("ExprImport", exprImportEntity);
 	}
 
 	Entity transformEntity(EntityMetaData entityMetaData, Entity entityRow, EntityMetaData targetEntityMetaData)
@@ -155,17 +264,22 @@ public class CellCountsPredictorController extends MolgenisPluginController
 		boolean firstAttribute = true;
 		for (AttributeMetaData sourceAttribute : entityMetaData.getAtomicAttributes())
 		{
+			String cellValue = entityRow.getString(sourceAttribute.getName());
 			if (firstAttribute)
 			{
-				String ensemblID = convertToEnsemblID(entityRow.getString(sourceAttribute.getName()));
-
+				String ensemblID = convertToEnsemblID(cellValue);
+				if (ensemblID == null)
+				{
+					LOG.warn("unknown gene: " + cellValue);
+					ensemblID= cellValue;
+				}
 				result.set("gene", ensemblID);
 				firstAttribute = false;
 			}
 			else
 			{
 
-				result.set(sourceAttribute.getName(), convertToDecimal(entityRow.getString(sourceAttribute.getName())));
+				result.set(sourceAttribute.getName(), convertToDecimal(cellValue));
 			}
 		}
 
@@ -184,14 +298,17 @@ public class CellCountsPredictorController extends MolgenisPluginController
 
 	private String convertToEnsemblID(String geneIdentifier)
 	{
-		Entity gene = dataService.findOne("genes",
-				QueryImpl.EQ("EnsemblGeneID", geneIdentifier).or().eq("GeneName", geneIdentifier));
+		Entity gene = dataService.findOne(GENES_REPOSITORY_NAME,
+				QueryImpl.EQ(GENES_REPOSITORY_ENSEMBL_GENE_ID_NAME, geneIdentifier).or()
+						.eq(GENES_REPOSITORY_ASSOCIATED_GENE_NAME, geneIdentifier));
 		if (gene == null)
 		{
-			throw new MolgenisDataException("Unknown gene identiefier: " + geneIdentifier);
+			return null;
+			// TODO: get proper version of the source table
+			// throw new MolgenisDataException("Unknown gene identifier: " + geneIdentifier);
 		}
 
-		return gene.getString("EnsemblGeneID");
+		return gene.getString(GENES_REPOSITORY_ENSEMBL_GENE_ID_NAME);
 
 	}
 
@@ -204,7 +321,7 @@ public class CellCountsPredictorController extends MolgenisPluginController
 		emd.addAttribute("gene").setIdAttribute(true).setNillable(false);
 		emd.addAllAttributeMetaData(transform(skip(r.getEntityMetaData().getAtomicAttributes(), 1),
 				attr -> new DefaultAttributeMetaData(attr.getName(), FieldTypeEnum.DECIMAL)));
-		
+
 		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
 		emd.setLabel("Uploaded Expression data " + r.getName() + " " + sdf.format(new Date()));
 		return metaDataService.addEntityMeta(emd);

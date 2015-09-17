@@ -1,12 +1,13 @@
 (function($, molgenis) {
+	
 
 	$(function() {
 		$('#get-counts').on('click', function() {
-			createResultsSetRepository($(this).data('upload-id'));
+			createResultsSetRepository($(this).data('upload-id'),$(this).data('sample-name'));
 		});
 	})
 	
-	function createResultsSetRepository(uploadID){
+	function createResultsSetRepository(uploadID, importedEntity){
 //		alert(uploadID);
 		
 		$.ajax({
@@ -14,13 +15,13 @@
 		 url : molgenis.getContextUrl() + "/createResultsRepository",
 		 data : {'uploadID': uploadID},
 		 success : function(data) {
-			 startPrediction(data);
+			 startPrediction(data, importedEntity);
 		 }
 	});
 	}
 
-	function startPrediction(resultSetRepositoryName) {
-		$.get('http://localhost:8080/scripts/cellCountsPrediction/run', {"resultSetRepositoryName" : resultSetRepositoryName}, function(data, status) {
+	function startPrediction(resultSetRepositoryName, importedEntity) {
+		$.get('http://localhost:8080/scripts/cellCountsPrediction/run', {"resultSetRepositoryName" : resultSetRepositoryName, "importedEntity" : importedEntity}, function(data, status) {
 			 window.location = "http://localhost:8080/menu/main/dataexplorer?entity=" + resultSetRepositoryName;
 		}, 'html');
 
