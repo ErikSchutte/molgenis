@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.concurrent.Callable;
@@ -37,12 +38,14 @@ import org.molgenis.data.support.DefaultEntity;
 import org.molgenis.data.support.DefaultEntityMetaData;
 import org.molgenis.data.support.QueryImpl;
 import org.molgenis.data.support.UuidGenerator;
+import org.molgenis.security.permission.PermissionSystemService;
 import org.molgenis.ui.MolgenisPluginController;
 import org.molgenis.ui.menu.MenuReaderService;
 import org.molgenis.util.FileUploadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -78,6 +81,9 @@ public class CellCountsPredictorController extends MolgenisPluginController
 	@Autowired
 	private MenuReaderService menuReaderService;
 
+	@Autowired
+	private PermissionSystemService permissionSystemService;
+
 	ExecutorService executorService = Executors.newFixedThreadPool(2);
 
 	public CellCountsPredictorController()
@@ -112,7 +118,7 @@ public class CellCountsPredictorController extends MolgenisPluginController
 		}
 
 		model.addAttribute("exprImport", exprImport);
-		 model.addAttribute("numberOfSamplesImported", numberOfSamplesImported);
+		model.addAttribute("numberOfSamplesImported", numberOfSamplesImported);
 		model.addAttribute("nrOfMarkerGenesForCounts", totalNumberOfMarkerGenesForCounts);
 		model.addAttribute("nrOfMarkerGenesForPcts", totalNumberOfMarkerGenesForPct);
 		model.addAttribute("numberOfMarkerGenesForCountsImported", numberOfMarkerGenesForCountsImported);
@@ -321,6 +327,10 @@ public class CellCountsPredictorController extends MolgenisPluginController
 
 		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
 		emd.setLabel("Uploaded Expression data " + r.getName() + " " + sdf.format(new Date()));
+		
+		permissionSystemService.giveUserEntityPermissions(SecurityContextHolder.getContext(),
+				Arrays.asList(emd.getName()));
+		
 		return metaDataService.addEntityMeta(emd);
 	}
 
@@ -334,6 +344,8 @@ public class CellCountsPredictorController extends MolgenisPluginController
 	{
 		String resultSetRepositoryName = generator.generateId();
 		DefaultEntityMetaData newMetaData = createResultsSetEntityMetaData(resultSetRepositoryName, uploadID);
+		permissionSystemService.giveUserEntityPermissions(SecurityContextHolder.getContext(),
+				Arrays.asList(newMetaData.getName()));
 		metaDataService.addEntityMeta(newMetaData);
 		return newMetaData.getName();
 	}
