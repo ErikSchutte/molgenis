@@ -1,12 +1,8 @@
 <#include "molgenis-header.ftl">
 <#include "molgenis-footer.ftl">
 
-<#assign css=[
-				"lncrna-explorer.css"
-			 	]>
-<#assign js=[
-				"cell-counts-prediction.js"
-				]>
+<#assign css=["lncrna-explorer.css"]>
+<#assign js=["cell-counts-prediction.js"]>
 
 <@header css js/>
 
@@ -66,7 +62,15 @@ Marker genes for cell percentages: </div>
 
 
 <#elseif exprImport.get('status') == 'RUNNING'>
-	Import still running.
+<div class="row">
+	<div class="col-md-6 col-md-offset-3">
+		<div class="progress">
+  			<div class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+    			<span>Import still running...</span>
+  			</div>
+		</div>
+	</div>
+</div>
 Started at  ${exprImport.getUtilDate('importDate')?datetime}
 <script>
 	setTimeout(function() {location.reload();}, 10000);

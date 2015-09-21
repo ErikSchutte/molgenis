@@ -35,7 +35,7 @@
 
 		$.ajax({
 			type : 'POST',
-			url : "http://localhost:8080/menu/main/cellcounts" + "/readFile",
+			url : "http://localhost:8080/menu/main/decon-cell" + "/readFile",
 			contentType : 'application/json',
 			data : submittedFile,
 			success : function(data) {

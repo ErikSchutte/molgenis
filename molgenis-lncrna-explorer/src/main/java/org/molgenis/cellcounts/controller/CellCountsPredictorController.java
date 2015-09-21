@@ -61,7 +61,7 @@ public class CellCountsPredictorController extends MolgenisPluginController
 	private static final String GENES_REPOSITORY_ENSEMBL_GENE_ID_NAME = "EnsemblGeneID";
 	private static final String GENES_REPOSITORY_NAME = "BioMartGenes";
 	private static final String EXPR_IMPORT_REPOSITORY_NAME = "ExprImport";
-	public static final String ID = "cellcounts";
+	public static final String ID = "decon-cell";
 	public static final String URI = MolgenisPluginController.PLUGIN_URI_PREFIX + ID;
 
 	private static final Logger LOG = LoggerFactory.getLogger(CellCountsPredictorController.class);
@@ -88,7 +88,7 @@ public class CellCountsPredictorController extends MolgenisPluginController
 	@RequestMapping
 	public String init(Model model)
 	{
-		return "view-lncrnaexplorer";
+		return "view-decon-cell";
 	}
 
 	@RequestMapping("/report/{id}")
