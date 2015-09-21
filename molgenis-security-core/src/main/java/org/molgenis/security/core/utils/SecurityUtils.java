@@ -90,6 +90,7 @@ public class SecurityUtils
 		for (GrantedAuthority authority : authorities)
 		{
 			if (authority.getAuthority().equals(AUTHORITY_SU)) return true;
+			if (authority.getAuthority().equals("ROLE_SYSTEM")) return true;
 		}
 
 		return false;

@@ -10,6 +10,7 @@ import java.io.InputStream;
 import javax.servlet.http.HttpServletResponse;
 
 import org.molgenis.data.DataService;
+import org.molgenis.security.core.runas.RunAsSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -34,6 +35,7 @@ public class FileDownloadController
 	}
 
 	@RequestMapping(value = "/{fileName:.+}", method = GET)
+	@RunAsSystem
 	public void getFile(@PathVariable("fileName") String fileName, HttpServletResponse response) throws IOException
 	{
 		FileMeta fileMeta = dataService.findOne(FileMeta.ENTITY_NAME, fileName, FileMeta.class);
