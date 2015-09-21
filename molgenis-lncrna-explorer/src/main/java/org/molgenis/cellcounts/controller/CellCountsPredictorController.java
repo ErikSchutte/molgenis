@@ -53,9 +53,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.Iterables;
 
-import ch.ethz.ssh2.channel.X11ServerData;
-import ch.qos.logback.core.net.SyslogOutputStream;
-
 @Controller
 @RequestMapping(URI)
 public class CellCountsPredictorController extends MolgenisPluginController
