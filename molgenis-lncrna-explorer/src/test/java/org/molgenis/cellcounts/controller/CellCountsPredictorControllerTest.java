@@ -24,6 +24,7 @@ import org.molgenis.data.support.MapEntity;
 import org.molgenis.data.support.QueryImpl;
 import org.molgenis.data.support.UuidGenerator;
 import org.molgenis.framework.ui.MolgenisPluginRegistry;
+import org.molgenis.security.permission.PermissionSystemService;
 import org.molgenis.ui.menu.MenuReaderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -48,6 +49,9 @@ public class CellCountsPredictorControllerTest extends AbstractTestNGSpringConte
 
 	@Autowired
 	CellCountsPredictorController controller;
+	
+	@Autowired
+	PermissionSystemService permissionSystemService;
 
 	@Autowired
 	UuidGenerator generator;
@@ -60,25 +64,34 @@ public class CellCountsPredictorControllerTest extends AbstractTestNGSpringConte
 	{
 		exprImport = new MapEntity();
 		exprImport.set("id", "12345");
-		Mockito.reset(dataService);
+		exprImport.set("importedEntity", "sample");
+		exprImport.set("markerGenesForCounts", Collections.emptyList());
+		exprImport.set("markerGenesForPct", Collections.emptyList());
+		Mockito.reset(dataService, metaDataService, permissionSystemService, generator);
+		when(dataService.findOne("ExprImport", "12345")).thenReturn(exprImport);
+		
+		DefaultEntityMetaData sampleMetaData = new DefaultEntityMetaData("sample");
+		sampleMetaData.addAttribute("Gene");
+		sampleMetaData.addAttribute("Sample1");
+		sampleMetaData.addAttribute("Sample2");
+		sampleMetaData.addAttribute("Sample3");
+		when(dataService.getEntityMetaData("sample")).thenReturn(sampleMetaData);
+		
 	}
 
-	// @Test
+	@Test
 	public void testReportStillRunning()
 	{
 		exprImport.set("status", "RUNNING");
-		exprImport.set("markerGenesForCounts", Collections.emptyList());
-		exprImport.set("markerGenesForPct", Collections.emptyList());
-		when(dataService.findOne("ExprImport", "12345")).thenReturn(exprImport);
-		when(dataService.getRepository("importedEntity").getEntityMetaData().getAtomicAttributes().iterator()).thenReturn(numberOfAttributes);
-
+		
 		Model model = new ExtendedModelMap();
 		controller.report("12345", model);
 
 		Assert.assertEquals(model.asMap().get("exprImport"), exprImport);
+		Assert.assertEquals(model.asMap().get("numberOfSamplesImported"), 3);
 	}
 
-	@Test(enabled=false)
+	@Test
 	public void testReportDone()
 	{
 		exprImport.set("status", "FINISHED");
@@ -96,7 +109,6 @@ public class CellCountsPredictorControllerTest extends AbstractTestNGSpringConte
 		when(dataService.findOne("ExprImport", "12345")).thenReturn(exprImport);
 		when(dataService.count("cellcounts_MarkerGenes", QueryImpl.EQ("markerForCounts", true))).thenReturn(15l);
 		when(dataService.count("cellcounts_MarkerGenes", QueryImpl.EQ("markerForPct", true))).thenReturn(3l);
-		when(dataService.getRepository("importedEntity").getEntityMetaData().getAtomicAttributes().iterator()).thenReturn(numberOfAttributes);
 
 		Model model = new ExtendedModelMap();
 		controller.report("12345", model);
@@ -107,7 +119,7 @@ public class CellCountsPredictorControllerTest extends AbstractTestNGSpringConte
 		assertEquals(model.asMap().get("cellPctOk"), true);
 	}
 
-	//@Test
+	@Test
 	public void testReportDoneAllOk()
 	{
 		exprImport.set("status", "FINISHED");
@@ -121,7 +133,6 @@ public class CellCountsPredictorControllerTest extends AbstractTestNGSpringConte
 		when(dataService.findOne("ExprImport", "12345")).thenReturn(exprImport);
 		when(dataService.count("ModelGene", QueryImpl.EQ("markerForCounts", true))).thenReturn(2l);
 		when(dataService.count("ModelGene", QueryImpl.EQ("markerForPct", true))).thenReturn(3l);
-		when(dataService.getRepository("importedEntity").getEntityMetaData().getAtomicAttributes().iterator()).thenReturn(numberOfAttributes);
 
 		Model model = new ExtendedModelMap();
 		controller.report("12345", model);
@@ -200,6 +211,12 @@ public class CellCountsPredictorControllerTest extends AbstractTestNGSpringConte
 		MenuReaderService menuReaderService()
 		{
 			return mock(MenuReaderService.class);
+		}
+		
+		@Bean
+		PermissionSystemService permissionSystemService()
+		{
+			return mock(PermissionSystemService.class);
 		}
 
 	}

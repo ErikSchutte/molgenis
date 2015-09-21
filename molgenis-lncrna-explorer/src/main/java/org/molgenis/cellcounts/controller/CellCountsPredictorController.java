@@ -110,12 +110,7 @@ public class CellCountsPredictorController extends MolgenisPluginController
 		int numberOfMarkerGenesForPctImported = Iterables.size(exprImport.getEntities("markerGenesForPct"));
 
 		String inputData = exprImport.getString("importedEntity");
-		Iterator<AttributeMetaData> numberOfAttributes = dataService.getRepository(inputData).getEntityMetaData().getAtomicAttributes().iterator();
-		int numberOfSamplesImported = -1;
-		for (; numberOfAttributes.hasNext(); ++numberOfSamplesImported)
-		{
-			numberOfAttributes.next();
-		}
+		int numberOfSamplesImported = Iterables.size(dataService.getEntityMetaData(inputData).getAtomicAttributes()) - 1;
 
 		model.addAttribute("exprImport", exprImport);
 		model.addAttribute("numberOfSamplesImported", numberOfSamplesImported);
