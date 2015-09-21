@@ -94,6 +94,10 @@ public class CellCountsPredictorController extends MolgenisPluginController
 	@RequestMapping
 	public String init(Model model)
 	{
+		Entity runtimeProperty = dataService.findOne("RuntimeProperty", "AAAACT7P72YQFWFCL2LYKRIAAE");
+		model.addAttribute("runtimeProperty", runtimeProperty);
+		String menuUrl = getMenuUrl();
+		model.addAttribute("menuUrl", menuUrl);
 		return "view-decon-cell";
 	}
 
