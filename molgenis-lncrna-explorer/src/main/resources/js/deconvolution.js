@@ -1,5 +1,19 @@
 (function($, molgenis) {
+	
+	// Show legend
+	$(function() {
+		$('#show-legend').popover({
+			placement : 'bottom',
+			content : "<img src='/img/Tutorial_deconvolution.png' alt='Tutorial'></img>",
+			html : true,
+			animation : true,
 
+		})
+
+	});
+	
+	
+	
 	var SelectClass = React.createClass({
 		displayName : 'Select',
 		propTypes : {
@@ -290,29 +304,6 @@
 		React.render(Deconvolution({}), $('#deconvolution')[0]);
 	});
 
-	
-	
-	// Show legend
-//	$(function() {
-//
-//		$.ajax({
-//			type : 'POST',
-//			url : molgenis.getContextUrl() + "/deconvolution",
-//			contentType : 'application/json',
-//			success : function(data) {
-//				showLegend(data)
-//			}
-//		})
-//
-//	})
-//
-//	function showLegend(image) {
-//		$('#show-legend').popover({
-//			placement : 'bottom',
-//			content : image,
-//			html : true
-//		});
-//
-//	}
+
 
 }($, window.top.molgenis = window.top.molgenis || {}));
