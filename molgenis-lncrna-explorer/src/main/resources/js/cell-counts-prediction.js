@@ -3,7 +3,7 @@
 
 	$(function() {
 		$('#get-counts').on('click', function() {
-			createResultsSetRepository($(this).data('upload-id'),$(this).data('sample-name'),$(this).data('menu-url'));
+			createResultsSetRepository($(this).data('upload-id'),$(this).data('sample-name'));
 		});
 	})
 	
