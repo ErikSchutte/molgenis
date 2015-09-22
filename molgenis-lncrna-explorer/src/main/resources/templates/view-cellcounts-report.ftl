@@ -56,7 +56,7 @@ Marker genes for cell percentages: </div>
 </div>
 <#if (exprImport.getEntities("markerGenesForCounts")?size * 100 / nrOfMarkerGenesForCounts >= 80  && exprImport.getEntities("markerGenesForPct")?size * 100 / nrOfMarkerGenesForPcts >= 80)>
 <div class="row">
-	<button data-upload-id="${exprImport.get("id")}" data-sample-name="${exprImport.getString("importedEntity")}" type="btn" class="btn btn-success" id="get-counts">Start cell count prediction!</button>
+	<button data-upload-id="${exprImport.get("id")}" data-sample-name="${exprImport.getString("importedEntity")}" data-menu-url="${menuUrl}" type="btn" class="btn btn-success" id="get-counts">Start cell count prediction!</button>
 </div>
 </#if>
 

@@ -27,7 +27,7 @@
 
 				<div class="row">
 				<div class="col-md-6 col-md-offset-2">	
-					<form method="post" id="wizardForm" name="wizardForm" enctype="multipart/form-data" action="http://localhost:8080/menu/main/decon-cell/readFile" role="form">	
+					<form method="post" id="wizardForm" name="wizardForm" enctype="multipart/form-data" action="${menuUrl}/readFile" role="form">	
 						<input type="file" name="upload" data-filename-placement="inside" title="Select a file..." id="input-file">
 						<button type="submit" class="btn btn-success" id="upload-file">Upload</button></br>
 						<#--<a href="${menuUrl}/report/${runtimeProperty.get("value")}"> Or start prediction with test data!</a>-->
