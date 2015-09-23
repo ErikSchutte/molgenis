@@ -15,7 +15,7 @@
 		 url : molgenis.getContextUrl() + "/createResultsRepository",
 		 data : {'uploadID': uploadID},
 		 success : function(data) {
-			 startPrediction(data, importedEntity, menuUrl);
+			 startPrediction(data, importedEntity);
 		 }
 	});
 	}
