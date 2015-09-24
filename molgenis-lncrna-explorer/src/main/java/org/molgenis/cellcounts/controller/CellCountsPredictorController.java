@@ -56,6 +56,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.Iterables;
 
+import autovalue.shaded.com.google.common.common.base.Preconditions;
 import autovalue.shaded.com.google.common.common.collect.ImmutableMap;
 
 @Controller
@@ -109,19 +110,24 @@ public class CellCountsPredictorController extends MolgenisPluginController
 	@RequestMapping("/startPrediction")
 	public String startPrediction(@RequestParam String resultSetRepositoryName, @RequestParam String importedEntity)
 	{
-		try
-		{
-			Callable<Void> task = () -> runAsSystem(() -> {
+		Preconditions.checkNotNull(resultSetRepositoryName);
+		Preconditions.checkNotNull(importedEntity);
+		LOG.info("Start cell count prediction for {} to {}...", importedEntity, resultSetRepositoryName);
+		Callable<Void> task = () -> runAsSystem(() -> {
+			try
+			{
 				scriptRunner.runScript("cellCountsPrediction", ImmutableMap.of("resultSetRepositoryName",
 						resultSetRepositoryName, "importedEntity", importedEntity));
-				return (Void) null;
-			});
-			executorService.submit(task);
-		}
-		catch (Exception e)
-		{
-			System.out.println(e);
-		}
+				LOG.info("Cell count prediction DONE. Results written to {}.", resultSetRepositoryName);
+
+			}
+			catch (Exception ex)
+			{
+				LOG.error("Error running cellCountsPrediction script for repositoryName {} and importedEntity {}.", ex);
+			}
+			return (Void) null;
+		});
+		executorService.submit(task);
 		return "redirect:" + getMenuUrl() + "/stillRunning/" + resultSetRepositoryName;
 	}
 
