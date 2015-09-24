@@ -10,6 +10,7 @@ import static org.testng.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.concurrent.ExecutorService;
 
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -25,6 +26,7 @@ import org.molgenis.data.support.QueryImpl;
 import org.molgenis.data.support.UuidGenerator;
 import org.molgenis.framework.server.MolgenisSettings;
 import org.molgenis.framework.ui.MolgenisPluginRegistry;
+import org.molgenis.script.SavedScriptRunner;
 import org.molgenis.security.permission.PermissionSystemService;
 import org.molgenis.ui.menu.MenuReaderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,15 +52,18 @@ public class CellCountsPredictorControllerTest extends AbstractTestNGSpringConte
 
 	@Autowired
 	CellCountsPredictorController controller;
-	
+
 	@Autowired
 	PermissionSystemService permissionSystemService;
 
 	@Autowired
 	UuidGenerator generator;
-	
+
 	@Autowired
 	private MolgenisSettings molgenisSettings;
+
+	@Autowired
+	private SavedScriptRunner scriptRunner;
 
 	private MapEntity exprImport;
 	private Iterator<AttributeMetaData> numberOfAttributes;
@@ -73,23 +78,23 @@ public class CellCountsPredictorControllerTest extends AbstractTestNGSpringConte
 		exprImport.set("markerGenesForPct", Collections.emptyList());
 		Mockito.reset(dataService, metaDataService, permissionSystemService, generator, molgenisSettings);
 		when(molgenisSettings.getProperty("deconv2_sample_dataset")).thenReturn("sample");
-		
+
 		when(dataService.findOne("ExprImport", "12345")).thenReturn(exprImport);
-		
+
 		DefaultEntityMetaData sampleMetaData = new DefaultEntityMetaData("sample");
 		sampleMetaData.addAttribute("Gene");
 		sampleMetaData.addAttribute("Sample1");
 		sampleMetaData.addAttribute("Sample2");
 		sampleMetaData.addAttribute("Sample3");
 		when(dataService.getEntityMetaData("sample")).thenReturn(sampleMetaData);
-		
+
 	}
 
 	@Test
 	public void testReportStillRunning()
 	{
 		exprImport.set("status", "RUNNING");
-		
+
 		Model model = new ExtendedModelMap();
 		controller.report("12345", model);
 
@@ -109,8 +114,7 @@ public class CellCountsPredictorControllerTest extends AbstractTestNGSpringConte
 		exprImport.set("markerGenesForPct", Arrays.asList(gene1, gene2, gene3));
 		AttributeMetaData attributeMetaData1 = new DefaultAttributeMetaData("test_attr_1");
 		AttributeMetaData attributeMetaData2 = new DefaultAttributeMetaData("test_attr_2");
-		numberOfAttributes = asList(attributeMetaData1, attributeMetaData2)
-				.iterator();
+		numberOfAttributes = asList(attributeMetaData1, attributeMetaData2).iterator();
 
 		when(dataService.findOne("ExprImport", "12345")).thenReturn(exprImport);
 		when(dataService.count("cellcounts_MarkerGenes", QueryImpl.EQ("markerForCounts", true))).thenReturn(15l);
@@ -218,17 +222,23 @@ public class CellCountsPredictorControllerTest extends AbstractTestNGSpringConte
 		{
 			return mock(MenuReaderService.class);
 		}
-		
+
 		@Bean
 		PermissionSystemService permissionSystemService()
 		{
 			return mock(PermissionSystemService.class);
 		}
-		
+
 		@Bean
 		MolgenisSettings molgenisSettings()
 		{
 			return mock(MolgenisSettings.class);
+		}
+
+		@Bean
+		SavedScriptRunner scriptRunner()
+		{
+			return mock(SavedScriptRunner.class);
 		}
 
 	}
