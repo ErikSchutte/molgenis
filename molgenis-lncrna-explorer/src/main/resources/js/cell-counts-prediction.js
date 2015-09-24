@@ -21,8 +21,8 @@
 	}
 
 	function startPrediction(resultSetRepositoryName, importedEntity) {
-		$.get('https://molgenis04.target.rug.nl/menu/plugins/scripts/cellCountsPrediction/run?', {"resultSetRepositoryName" : resultSetRepositoryName, "importedEntity" : importedEntity}, function(data, status) {
-			 window.location = "https://molgenis04.target.rug.nl/menu/main/dataexplorer?entity=" + resultSetRepositoryName;
+		$.get('/scripts/cellCountsPrediction/run?', {"resultSetRepositoryName" : resultSetRepositoryName, "importedEntity" : importedEntity}, function(data, status) {
+			 window.location = "/menu/main/dataexplorer?entity=" + resultSetRepositoryName;
 		}, 'html');
 
 //		$("#response").html("");
