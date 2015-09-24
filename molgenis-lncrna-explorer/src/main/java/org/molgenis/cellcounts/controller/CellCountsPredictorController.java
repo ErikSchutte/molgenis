@@ -100,10 +100,10 @@ public class CellCountsPredictorController extends MolgenisPluginController
 	@RequestMapping
 	public String init(Model model)
 	{
-		// Entity runtimeProperty = dataService.findOne("RuntimeProperty", "AAAACT7P72YQFWFCL2LYKRIAAE");
-		// model.addAttribute("runtimeProperty", runtimeProperty);
-		// String menuUrl = getMenuUrl();
-		// model.addAttribute("menuUrl", menuUrl);
+		 Entity runtimeProperty = dataService.findOne("RuntimeProperty", "AAAACUAABCEA3NXYJRHRKNIAAE");
+		 model.addAttribute("runtimeProperty", runtimeProperty);
+		 String menuUrl = getMenuUrl();
+		 model.addAttribute("menuUrl", menuUrl);
 		return "view-decon-cell";
 	}
 
@@ -136,7 +136,7 @@ public class CellCountsPredictorController extends MolgenisPluginController
 	{
 		if (dataService.count(resultSetRepositoryName, new QueryImpl()) > 0)
 		{
-			Thread.sleep(100);
+			Thread.sleep(1000);
 			return "redirect:/menu/main/dataexplorer?entity=" + resultSetRepositoryName;
 		}
 		model.addAttribute("resultSetRepositoryName", resultSetRepositoryName);
