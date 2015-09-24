@@ -28,6 +28,7 @@ import org.molgenis.data.DataService;
 import org.molgenis.data.Entity;
 import org.molgenis.data.EntityMetaData;
 import org.molgenis.data.MolgenisInvalidFormatException;
+import org.molgenis.data.Query;
 import org.molgenis.data.Repository;
 import org.molgenis.data.RepositoryCollection;
 import org.molgenis.data.csv.CsvRepositoryCollection;
@@ -38,6 +39,7 @@ import org.molgenis.data.support.DefaultEntity;
 import org.molgenis.data.support.DefaultEntityMetaData;
 import org.molgenis.data.support.QueryImpl;
 import org.molgenis.data.support.UuidGenerator;
+import org.molgenis.script.SavedScriptRunner;
 import org.molgenis.security.permission.PermissionSystemService;
 import org.molgenis.ui.MolgenisPluginController;
 import org.molgenis.ui.menu.MenuReaderService;
@@ -55,6 +57,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.Iterables;
+
+import autovalue.shaded.com.google.common.common.collect.ImmutableMap;
 
 @Controller
 @RequestMapping(URI)
@@ -84,6 +88,9 @@ public class CellCountsPredictorController extends MolgenisPluginController
 	@Autowired
 	private PermissionSystemService permissionSystemService;
 
+	@Autowired
+	private SavedScriptRunner scriptRunner;
+
 	ExecutorService executorService = Executors.newFixedThreadPool(2);
 
 	public CellCountsPredictorController()
@@ -94,11 +101,42 @@ public class CellCountsPredictorController extends MolgenisPluginController
 	@RequestMapping
 	public String init(Model model)
 	{
-//		Entity runtimeProperty = dataService.findOne("RuntimeProperty", "AAAACT7P72YQFWFCL2LYKRIAAE");
-//		model.addAttribute("runtimeProperty", runtimeProperty);
-//		String menuUrl = getMenuUrl();
-//		model.addAttribute("menuUrl", menuUrl);
+		// Entity runtimeProperty = dataService.findOne("RuntimeProperty", "AAAACT7P72YQFWFCL2LYKRIAAE");
+		// model.addAttribute("runtimeProperty", runtimeProperty);
+		// String menuUrl = getMenuUrl();
+		// model.addAttribute("menuUrl", menuUrl);
 		return "view-decon-cell";
+	}
+
+	@RequestMapping("/startPrediction")
+	public String startPrediction(@RequestParam String resultSetRepositoryName, @RequestParam String importedEntity)
+	{
+		try
+		{
+			Callable<Void> task = () -> runAsSystem(() -> {
+				scriptRunner.runScript("cellCountsPrediction", ImmutableMap.of("resultSetRepositoryName",
+						resultSetRepositoryName, "importedEntity", importedEntity));
+				return (Void) null;
+			});
+			executorService.submit(task);
+		}
+		catch (Exception e)
+		{
+			System.out.println(e);
+		}
+		return "redirect:" + getMenuUrl() + "/stillRunning/" + resultSetRepositoryName;
+	}
+
+	@RequestMapping("/stillRunning/{resultSetRepositoryName}")
+	public String stillRunning(@PathVariable String resultSetRepositoryName, Model model) throws InterruptedException
+	{
+		if (dataService.count(resultSetRepositoryName, new QueryImpl()) > 0)
+		{
+			Thread.sleep(100);
+			return "redirect:/menu/main/dataexplorer?entity=" + resultSetRepositoryName;
+		}
+		model.addAttribute("resultSetRepositoryName", resultSetRepositoryName);
+		return "view-stillRunning";
 	}
 
 	@RequestMapping("/report/{id}")
@@ -114,7 +152,8 @@ public class CellCountsPredictorController extends MolgenisPluginController
 		int numberOfMarkerGenesForPctImported = Iterables.size(exprImport.getEntities("markerGenesForPct"));
 
 		String inputData = exprImport.getString("importedEntity");
-		int numberOfSamplesImported = Iterables.size(dataService.getEntityMetaData(inputData).getAtomicAttributes()) - 1;
+		int numberOfSamplesImported = Iterables.size(dataService.getEntityMetaData(inputData).getAtomicAttributes())
+				- 1;
 
 		model.addAttribute("exprImport", exprImport);
 		model.addAttribute("numberOfSamplesImported", numberOfSamplesImported);
@@ -273,7 +312,7 @@ public class CellCountsPredictorController extends MolgenisPluginController
 				if (ensemblID == null)
 				{
 					LOG.warn("unknown gene: " + cellValue);
-					ensemblID= cellValue;
+					ensemblID = cellValue;
 				}
 				result.set("gene", ensemblID);
 				firstAttribute = false;
@@ -326,10 +365,10 @@ public class CellCountsPredictorController extends MolgenisPluginController
 
 		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
 		emd.setLabel("Uploaded Expression data " + r.getName() + " " + sdf.format(new Date()));
-		
+
 		permissionSystemService.giveUserEntityPermissions(SecurityContextHolder.getContext(),
 				Arrays.asList(emd.getName()));
-		
+
 		return metaDataService.addEntityMeta(emd);
 	}
 

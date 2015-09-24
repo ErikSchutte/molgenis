@@ -21,12 +21,7 @@
 	}
 
 	function startPrediction(resultSetRepositoryName, importedEntity) {
-		$.get('/scripts/cellCountsPrediction/run?', {"resultSetRepositoryName" : resultSetRepositoryName, "importedEntity" : importedEntity}, function(data, status) {
-			 window.location = "/menu/main/dataexplorer?entity=" + resultSetRepositoryName;
-		}, 'html');
-
-//		$("#response").html("");
-//		$("#response").append("" + '<a href="http://localhost:8080/menu/main/dataexplorer?entity=sample_ResultCellCounts" target="_blank">Show output</a>' + "")
+		window.location = '/menu/main/decon-cell/startPrediction?resultSetRepositoryName=' + resultSetRepositoryName + '&importedEntity=' + importedEntity;
 	}
 
 }($, window.top.molgenis = window.top.molgenis || {}));
