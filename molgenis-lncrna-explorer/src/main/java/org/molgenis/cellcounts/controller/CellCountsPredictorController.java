@@ -91,7 +91,7 @@ public class CellCountsPredictorController extends MolgenisPluginController
 	@Autowired
 	private SavedScriptRunner scriptRunner;
 
-	ExecutorService executorService = Executors.newFixedThreadPool(2);
+	ExecutorService executorService = Executors.newFixedThreadPool(5);
 
 	public CellCountsPredictorController()
 	{
