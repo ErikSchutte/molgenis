@@ -116,7 +116,7 @@ Marker genes for cell percentages: </div>
 
 	<button type="btn" class="btn btn-success" id="get-counts-test">Start cell count prediction!</button>
 </div>
-</div>
+
 
 </#if>
 </div>

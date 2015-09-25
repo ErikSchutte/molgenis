@@ -367,7 +367,7 @@ public class CellCountsPredictorController extends MolgenisPluginController
 		emd.addAllAttributeMetaData(transform(skip(r.getEntityMetaData().getAtomicAttributes(), 1),
 				attr -> new DefaultAttributeMetaData(attr.getName(), FieldTypeEnum.DECIMAL)));
 
-		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
+		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss a");
 		emd.setLabel("Uploaded Expression data " + r.getName() + " " + sdf.format(new Date()));
 
 		permissionSystemService.giveUserEntityPermissions(SecurityContextHolder.getContext(),
@@ -418,8 +418,8 @@ public class CellCountsPredictorController extends MolgenisPluginController
 		String importedEntity = upload.getString("importedEntity"); // this is SampleData
 		EntityMetaData importedEntityMetaData = dataService.getEntityMetaData(importedEntity);
 		String uploadedEntityLabel = importedEntityMetaData.getLabel();
-		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
-		String label = "Cell Count Prediction for " + uploadedEntityLabel + " " + sdf.format(new Date());
+		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss a");
+		String label = "Cell Count Prediction for " + uploadedEntityLabel + ", " + sdf.format(new Date());
 		return label;
 	}
 
