@@ -84,7 +84,7 @@ Error: ${exprImport.get('errorMessage')?html}
 
 <#elseif exprImport.get('status') == 'TEST'>
 <div class="well">
-<h3>Congratulations!</h3> We've successfully received your data.
+<h3>You've selected the test data.
 </div>
 
 <div class="row">
