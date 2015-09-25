@@ -84,7 +84,7 @@ Error: ${exprImport.get('errorMessage')?html}
 
 <#elseif exprImport.get('status') == 'TEST'>
 <div class="well">
-<h3>You've selected the test data.
+You've selected the test data.
 </div>
 
 <div class="row">
@@ -105,7 +105,7 @@ Marker genes for cell counts:</div>
 	<#if (exprImport.getEntities("markerGenesForCounts")?size * 100 / nrOfMarkerGenesForCounts >= 80)><span class="glyphicon glyphicon-ok" style="color:green" aria-hidden="true"></span><#else> <span class="glyphicon glyphicon-remove" style="color:red" aria-hidden="true"></span></#if> </div>
 <div class="row">
 
-div class="row">
+<div class="row">
 <div class="col-sm-4 col-sm-offset-2">
 Marker genes for cell percentages: </div>
 <div class="col-sm-1">${exprImport.getEntities("markerGenesForPct")?size} / ${nrOfMarkerGenesForPcts} </div>
