@@ -104,6 +104,16 @@ Marker genes for cell counts:</div>
 <div class="col-sm-2">
 	<#if (exprImport.getEntities("markerGenesForCounts")?size * 100 / nrOfMarkerGenesForCounts >= 80)><span class="glyphicon glyphicon-ok" style="color:green" aria-hidden="true"></span><#else> <span class="glyphicon glyphicon-remove" style="color:red" aria-hidden="true"></span></#if> </div>
 <div class="row">
+
+div class="row">
+<div class="col-sm-4 col-sm-offset-2">
+Marker genes for cell percentages: </div>
+<div class="col-sm-1">${exprImport.getEntities("markerGenesForPct")?size} / ${nrOfMarkerGenesForPcts} </div>
+<div class="col-sm-1">${(exprImport.getEntities("markerGenesForPct")?size * 100 / nrOfMarkerGenesForPcts)?round}% </div>
+<div class="col-sm-2">
+	<#if (exprImport.getEntities("markerGenesForPct")?size * 100 / nrOfMarkerGenesForPcts >= 80)><span class="glyphicon glyphicon-ok" style="color:green" aria-hidden="true"></span><#else> <span class="glyphicon glyphicon-remove" style="color:red" aria-hidden="true"></span></#if> </div>
+</div>
+
 	<button type="btn" class="btn btn-success" id="get-counts-test">Start cell count prediction!</button>
 </div>
 </div>
