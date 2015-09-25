@@ -14,7 +14,7 @@
 	</div>
 </div>
 <script>
-	setTimeout(function() {location.reload();}, 11000);
+	setTimeout(function() {location.reload();}, 10000);
 </script>
 </div>
 

@@ -1,5 +1,12 @@
 (function($, molgenis) {
 	
+	
+	$(function() {
+		$('#get-counts-test').on('click', function() {
+			window.location = '/menu/main/dataexplorer?entity=sample_AAAACUADTASIFNXYJRHRKNIAAE'
+		});
+	})
+	
 
 	$(function() {
 		$('#get-counts').on('click', function() {

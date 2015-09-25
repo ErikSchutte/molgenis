@@ -79,6 +79,35 @@ Started at  ${exprImport.getUtilDate('importDate')?datetime}
 <#elseif exprImport.get('status') == 'FAILED'>
 Sorry, import failed.
 Error: ${exprImport.get('errorMessage')?html}
+
+
+
+<#elseif exprImport.get('status') == 'TEST'>
+<div class="well">
+<h3>Congratulations!</h3> We've successfully received your data.
+</div>
+
+<div class="row">
+	<div class="col-sm-4 col-sm-offset-2">
+		Number of imported samples:
+	</div>
+	<div class="col-sm-1">
+		${numberOfSamplesImported}
+	</div>
+</div>
+
+<div class="row">
+<div class="col-sm-4 col-sm-offset-2">
+Marker genes for cell counts:</div>
+<div class="col-sm-1">${exprImport.getEntities("markerGenesForCounts")?size} / ${nrOfMarkerGenesForCounts} </div>
+<div class="col-sm-1">${(exprImport.getEntities("markerGenesForCounts")?size * 100 / nrOfMarkerGenesForCounts)?round}% </div>
+<div class="col-sm-2">
+	<#if (exprImport.getEntities("markerGenesForCounts")?size * 100 / nrOfMarkerGenesForCounts >= 80)><span class="glyphicon glyphicon-ok" style="color:green" aria-hidden="true"></span><#else> <span class="glyphicon glyphicon-remove" style="color:red" aria-hidden="true"></span></#if> </div>
+<div class="row">
+	<button type="btn" class="btn btn-success" id="get-counts-test">Start cell count prediction!</button>
+</div>
+</div>
+
 </#if>
 </div>
 
