@@ -1,6 +1,6 @@
 (function($, molgenis) {
 
-	var submittedValue;
+	var geneNames;
 
 	$(function() {
 
@@ -34,14 +34,14 @@
 		})
 
 		var component = React.render(molgenis.ui.EntitySelectBox({
-			entity : 'genes',
+			entity : 'BioMartGenes',
 			mode : 'view',
 			name : "name",
 			disabled : false,
 			readOnly : false,
 			multiple : true,
 			required : true,
-			placeholder : 'Please select one or more Gene Names',
+			placeholder : 'Please select one or more Genes',
 			focus : false,
 			value : [],
 			onValueChange : function(event) {
@@ -53,7 +53,11 @@
 				// cols: 100,
 				// value: JSON.stringify(event)
 				// }), $('#entitySelectBox div.log')[0]);
-				submittedValue = event;
+
+				geneNames = event.value.map(function(e) {
+					// or return e.EnsemblGeneID;
+					return e.AssociatedGeneName;
+				})
 			}
 		}), $('#entitySelectBox div.component')[0]);
 
@@ -62,30 +66,23 @@
 	function submitUserInput() {
 
 		var genes = '';
-
-		for (i = 0; i < submittedValue.value.length; i++) {
-			genes += submittedValue.value[i].GeneNames + ',';
-			console.log(submittedValue.value[i].GeneNames);
+		// submittedValue = submittedValue.map(function(e){return
+		// e.AssociatedGeneName})
+		for (i = 0; i < geneNames.length; i++) {
+			genes += geneNames[i] + ',';
+			console.log(geneNames[i]);
 		}
 
 		console.log(genes);
 
 		$("#ajaxResponse").html("");
-		$("#ajaxResponse").append(""
-		// + '<div role="tabpanel" class="col-md-12 col-md-offset-1"><ul
-		// class="nav nav-tabs" role="tablist"><li role="tab" class="active"><a
-		// href="#expression" aria-controls="expression" role="tab"
-		// data-toggle="tab">Expression Data</a></li><li role="tab"><a
-		// href="#test" aria-controls="test" role="tab"
-		// data-toggle="tab">Test</a></li></ul><div class="tab-content"><div
-		// class="tab-pane active" id="expression">'
-		+ '<img src="http://localhost:8080/scripts/generateExpression%28rpkm%29Heatmap/run?genes=' + genes + '">'
-		// + '<a data-toggle="modal" data-target="#myModal"><span id="info"
-		// class="glyphicon glyphicon-info-sign" aria-hidden="true"
-		// style="font-size:1.5em;"></span> </a>'
-		// + '</div><div class="tab-pane" id="test">Test test test</div></div>'
-		// + "")
-		+ "")
+		$("#ajaxResponse").append(
+				""
+				+ '<h3>Cell type expression profile</h3></br>' 
+				+ '<img src="http://localhost:8080/scripts/generateExpression%28rpkm%29Heatmap/run?genes=' + genes
+				+ '"></br></br>' + '<h3>Coexpression</h3></br>' 
+				+ '<img src="http://localhost:8080/scripts/correlationCoexpression/run?genes=' + genes + '">'
+				+ "")
 
 	}
 

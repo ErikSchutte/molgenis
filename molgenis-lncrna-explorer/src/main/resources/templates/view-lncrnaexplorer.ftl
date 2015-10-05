@@ -57,7 +57,10 @@
 				</div>
 
 				<div class="row">
-					<div class="col-md-10" id="ajaxResponse"></div>
+					<hr>
+					<div class="col-md-11 col-md-offset-1">
+						<div class="col-md-10" id="ajaxResponse"></div>
+					</div>
 				</div>
 			</div>
 
