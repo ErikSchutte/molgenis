@@ -34,43 +34,8 @@
 				</div>
 
 
-				<div class="row">
-					<div class="col-md-4 col-md-offset-4">
-						<div id="entitySelectBox">
-							<div class="component" id="entitySelectBoxComponent"></div>
-								<span class="input-group-btn">
-      	 							<button type="btn" class="btn btn-default" id="submit-input">Search</button>
-     	 						</span>
-							<div class="source"></div>			
-						</div>
-					</div>
+				<div id="explorer">
 				</div>
-
-
-
-				<div class="row">
-					<div class="col-md-11">
-						<p>
-			
-						</p>
-					</div>		
-				</div>
-
-				<div class="row">
-					<hr>
-					<div class="col-md-11 col-md-offset-1">
-						<div class="col-md-10" id="ajaxResponse"></div>
-					</div>
-				</div>
-			</div>
-
-
-	
-
-
-			
-
-
 
 </div>
 

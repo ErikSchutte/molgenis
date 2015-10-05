@@ -1,163 +1,133 @@
 (function($, molgenis) {
 
-	var geneNames;
+	var div = React.DOM.div;
+
+	var LncRNAExplorerClass = React.createClass({
+		displayName : 'LncRNAExplorer',
+		propTypes : {},
+		getInitialState : function() {
+			return {
+				genes : [],
+			};
+		},
+		_handleSearch : function(genes) {
+			console.log(genes);
+			this.setState({
+				genes : genes
+			});
+		},
+		render : function() {
+
+			var genePlots = [];
+
+			if (this.state.genes.length >= 2) {
+				genePlots = [ GenePlot({
+					genes : this.state.genes,
+					scriptName : 'generateExpression%28rpkm%29Heatmap',
+					title : 'Cell type expression profile'
+				}), GenePlot({
+					genes : this.state.genes,
+					scriptName : 'correlationCoexpression',
+					title : 'Coexpression'
+				}) ];
+			}
+
+			return div({}, div({
+				className : 'row'
+			}, div({
+				className : 'col-md-4 col-md-offset-4'
+			}, GenesSelectBox({
+				onSearch : this._handleSearch
+			}))), genePlots);
+		}
+	});
+
+	var LncRNAExplorer = React.createFactory(LncRNAExplorerClass);
+
+	var GenesSelectBoxClass = React.createClass({
+		displayName : 'GenesSelectBox',
+		propTypes : {
+			onSearch : React.PropTypes.func
+		},
+		getInitialState : function() {
+			return {
+				genes : [],
+			};
+		},
+		_onGenesSelection : function(event) {
+			this.setState({
+				genes : event.value
+			});
+		},
+		_onButtonPress : function() {
+			this.props.onSearch(this.state.genes);
+		},
+		render : function() {
+			return React.DOM.div({}, molgenis.ui.EntitySelectBox({
+				entity : 'BioMartGenes',
+				mode : 'view',
+				name : "name",
+				disabled : false,
+				readOnly : false,
+				multiple : true,
+				required : true,
+				placeholder : 'Please select one or more Genes',
+				focus : false,
+				value : [],
+				onValueChange : this._onGenesSelection
+			}), molgenis.ui.Button({
+				id : 'search-button',
+				type : 'button',
+				style : 'info',
+				size : 'medium',
+				text : 'Search',
+				name : 'Search',
+				disabled : false,
+				onClick : this._onButtonPress,
+			}));
+		}
+	});
+
+	var GenesSelectBox = React.createFactory(GenesSelectBoxClass);
+
+	var GenePlotClass = React.createClass({
+		displayName : 'GenePlot',
+		propTypes : {
+			genes : React.PropTypes.array.isRequired,
+			scriptName : React.PropTypes.string,
+			title : React.PropTypes.string
+		},
+		_mapGenes : function() {
+			var geneNames = this.props.genes.map(function(e) {
+				return e.AssociatedGeneName;
+			});
+			var genes = "";
+			for (i = 0; i < geneNames.length; i++) {
+				genes += geneNames[i] + ',';
+			}
+			return genes;
+		},
+		render : function() {
+			return React.DOM.div({}, React.DOM.h3({}, this.props.title), React.DOM.img({
+				src : 'http://localhost:8080/scripts/' + this.props.scriptName + '/run?genes=' + this._mapGenes()
+			}));
+		}
+	});
+
+	var GenePlot = React.createFactory(GenePlotClass);
 
 	$(function() {
 
-		$('#submit-input').on('click', function() {
-			submitUserInput()
+		React.render(LncRNAExplorer({}), $('#explorer')[0]);
 
-		})
-
-		$('#search-input').keypress(function(e) {
-			if (e.which == 13) {
-				submitUserInput()
-			}
-
-		})
-
-		$('#myModal').on('shown.bs.modal', function() {
-			$('#myInput').focus()
-		})
-
-		$("#pop").on("click", function() {
-			$('#imagepreview').attr('src', $('.pop img').attr('src'));
-			$('#imagemodal').modal('show');
-
-		});
-
-		// For the cell counts predictor
-		$('#upload-data').on('click', function() {
-			// todo
-			alert('test');
-
-		})
-
-		var component = React.render(molgenis.ui.EntitySelectBox({
-			entity : 'BioMartGenes',
-			mode : 'view',
-			name : "name",
-			disabled : false,
-			readOnly : false,
-			multiple : true,
-			required : true,
-			placeholder : 'Please select one or more Genes',
-			focus : false,
-			value : [],
-			onValueChange : function(event) {
-				console.log('onValueChange', event);
-				// React.render(React.DOM.textarea({
-				// placeholder : 'Component logging comes here..',
-				// readOnly : true,
-				// rows: 10,
-				// cols: 100,
-				// value: JSON.stringify(event)
-				// }), $('#entitySelectBox div.log')[0]);
-
-				geneNames = event.value.map(function(e) {
-					// or return e.EnsemblGeneID;
-					return e.AssociatedGeneName;
-				})
-			}
-		}), $('#entitySelectBox div.component')[0]);
-
-	})
-
-	function submitUserInput() {
-
-		var genes = '';
-		// submittedValue = submittedValue.map(function(e){return
-		// e.AssociatedGeneName})
-		for (i = 0; i < geneNames.length; i++) {
-			genes += geneNames[i] + ',';
-			console.log(geneNames[i]);
-		}
-
-		console.log(genes);
-
-		$("#ajaxResponse").html("");
-		$("#ajaxResponse").append(
-				""
-				+ '<h3>Cell type expression profile</h3></br>' 
-				+ '<img src="http://localhost:8080/scripts/generateExpression%28rpkm%29Heatmap/run?genes=' + genes
-				+ '"></br></br>' + '<h3>Coexpression</h3></br>' 
-				+ '<img src="http://localhost:8080/scripts/correlationCoexpression/run?genes=' + genes + '">'
-				+ "")
-
-	}
-
-	// function submitUserInput() {
-	//
-	// var submittedValue = $('#search-input').val();
-	// var failed = '';
-	// var success = '';
-	//
-	// $
-	// .ajax({
-	// type : 'POST',
-	// url : molgenis.getContextUrl() + "/validate",
-	// contentType : 'application/json',
-	// data : JSON.stringify(submittedValue),
-	// success : function(data) {
-	//
-	// if (data.search('Fail') != -1) {
-	// var genes = data.split(",");
-	// for (el in genes) {
-	// if (genes[el].search('Fail') != -1) {
-	// console.log(genes[el].split(':'));
-	// failed += genes[el].split(':')[1] + ' ';
-	// }
-	//
-	// }
-	//
-	// molgenis.createAlert([ {
-	// message : 'Could not find gene(s) with gene name: ' + failed + ''
-	// } ], 'warning');
-	//
-	// } else {
-	// var genes = data.split(",");
-	// for (el in genes) {
-	// success += genes[el].split(':')[1] + ',';
-	// }
-	// console.log(success);
-	// $("#ajaxResponse").html("");
-	// // $("#ajaxResponse")
-	// // .append(
-	// // ""
-	// //// + '<div class="col-sm-6 col-md-4"> <div class="thumbnail">'
-	// // + '<a href="#" class="pop"> <img id="imageresource"
-	// src="http://localhost:8080/scripts/generateExpression%28rpkm%29Heatmap/run?genes='
-	// + success + '"></a>'
-	// //// + '<div class="caption"> <h3>Thumbnail label</h3> <p>...</p> <p>'
-	// //// + '<a href="#" class="btn btn-primary" role="button">Button</a> <a
-	// href="#" class="btn btn-default" role="button">Button</a></p>'
-	// //// + '</div> </div> </div>');
-	// // + "");
-	//							
-	//							
-	// $("#ajaxResponse")
-	// .append(
-	// ""
-	// + '<div role="tabpanel" class="col-md-12 col-md-offset-1"><ul class="nav
-	// nav-tabs" role="tablist"><li role="tab" class="active"><a
-	// href="#expression" aria-controls="expression" role="tab"
-	// data-toggle="tab">Expression Data</a></li><li role="tab"><a href="#test"
-	// aria-controls="test" role="tab" data-toggle="tab">Test</a></li></ul><div
-	// class="tab-content"><div class="tab-pane active" id="expression">'
-	// + '<img
-	// src="http://localhost:8080/scripts/generateExpression%28rpkm%29Heatmap/run?genes='
-	// + success + '">'
-	// // + '<a data-toggle="modal" data-target="#myModal"><span id="info"
-	// class="glyphicon glyphicon-info-sign" aria-hidden="true"
-	// style="font-size:1.5em;"></span> </a>'
-	// + '</div><div class="tab-pane" id="test">Test test test</div></div>' +
-	// "")
-	//
-	// }
-	// }
-	//
-	// })
-	//
-	// }
+	});
+	/*
+	 * + '<h3>Cell type expression profile</h3></br>' + '<img
+	 * src="http://localhost:8080/scripts/generateExpression%28rpkm%29Heatmap/run?genes=' +
+	 * genes + '"></br></br>' + '<h3>Coexpression</h3></br>' + '<img
+	 * src="http://localhost:8080/scripts/correlationCoexpression/run?genes=' +
+	 * genes + '">' + "")
+	 * 
+	 */
 
 }($, window.top.molgenis = window.top.molgenis || {}));
