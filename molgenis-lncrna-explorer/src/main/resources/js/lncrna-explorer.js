@@ -21,15 +21,26 @@
 			var genePlots = [];
 
 			if (this.state.genes.length >= 2) {
-				genePlots = [ GenePlot({
+				genePlots = [ 
+				GenePlot({
 					genes : this.state.genes,
 					scriptName : 'generateExpression%28rpkm%29Heatmap',
-					title : 'Cell type expression profile'
-				}), GenePlot({
+					title : 'Cell type expression profile',
+					inputType: 'geneName'
+				}), 
+				GenePlot({
 					genes : this.state.genes,
 					scriptName : 'correlationCoexpression',
-					title : 'Coexpression'
-				}) ];
+					title : 'Coexpression',
+					inputType: 'geneName'
+				}),	
+				GenePlot({
+					genes : this.state.genes,
+					scriptName : 'grTcellHeatmap',
+					title : 'gr-Tcell',
+					inputType: 'geneID'
+				})
+				];
 			}
 
 			return div({}, div({
@@ -95,12 +106,20 @@
 		propTypes : {
 			genes : React.PropTypes.array.isRequired,
 			scriptName : React.PropTypes.string,
-			title : React.PropTypes.string
+			title : React.PropTypes.string,
+			inputType: React.PropTypes.string
 		},
 		_mapGenes : function() {
-			var geneNames = this.props.genes.map(function(e) {
-				return e.AssociatedGeneName;
-			});
+			if (this.props.inputType == 'geneName'){
+				var geneNames = this.props.genes.map(function(e) {
+					return e.AssociatedGeneName;
+				})
+			}
+			else if (this.props.inputType == 'geneID'){
+				var geneNames = this.props.genes.map(function(e) {
+					return e.EnsemblGeneID;
+				})
+			}
 			var genes = "";
 			for (i = 0; i < geneNames.length; i++) {
 				genes += geneNames[i] + ',';
