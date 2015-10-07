@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.molgenis</groupId>
 		<artifactId>molgenis</artifactId>
-		<version>1.9.0.decon2.1.1.0-SNAPSHOT</version>
+		<version>1.9.0-Decon2-1.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>molgenis-security</artifactId>
 	<packaging>jar</packaging>
