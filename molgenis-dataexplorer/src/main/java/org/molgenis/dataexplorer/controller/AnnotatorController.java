@@ -17,8 +17,11 @@ import org.molgenis.data.annotation.CrudRepositoryAnnotator;
 import org.molgenis.data.annotation.RepositoryAnnotator;
 import org.molgenis.data.annotation.entity.AnnotatorInfo.Status;
 import org.molgenis.data.elasticsearch.SearchService;
+import org.molgenis.data.settings.SettingsEntityMeta;
 import org.molgenis.data.validation.EntityValidator;
 import org.molgenis.file.FileStore;
+import org.molgenis.security.core.MolgenisPermissionService;
+import org.molgenis.security.core.Permission;
 import org.molgenis.security.permission.PermissionSystemService;
 import org.molgenis.security.user.UserAccountService;
 import org.molgenis.util.ErrorMessageResponse;
@@ -73,6 +76,9 @@ public class AnnotatorController
 	@Autowired
 	UserAccountService userAccountService;
 
+	@Autowired
+	MolgenisPermissionService molgenisPermissionService;
+
 	/**
 	 * Gets a map of all available annotators.
 	 * 
@@ -110,7 +116,7 @@ public class AnnotatorController
 		{
 			CrudRepositoryAnnotator crudRepositoryAnnotator = new CrudRepositoryAnnotator(dataService,
 					getNewRepositoryName(annotatorNames, repository.getEntityMetaData().getSimpleName()),
-					permissionSystemService, userAccountService);
+					permissionSystemService, userAccountService, molgenisPermissionService);
 
 			for (String annotatorName : annotatorNames)
 			{
@@ -169,10 +175,11 @@ public class AnnotatorController
 				map.put("inputAttributeTypes", toMap(annotator.getInputMetaData()));
 				map.put("outputAttributes", outputAttrs);
 				map.put("outputAttributeTypes", toMap(annotator.getOutputMetaData()));
-				if (annotator.getInfo().getStatus().equals(Status.READY))
-				{
-					mapOfAnnotators.put(annotator.getSimpleName(), map);
-				}
+				String settingsEntityName = SettingsEntityMeta.PACKAGE_NAME
+						+ org.molgenis.data.Package.PACKAGE_SEPARATOR + annotator.getInfo().getCode();
+				map.put("showSettingsButton",
+						molgenisPermissionService.hasPermissionOnEntity(settingsEntityName, Permission.WRITE));
+				mapOfAnnotators.put(annotator.getSimpleName(), map);
 			}
 		}
 		return mapOfAnnotators;
