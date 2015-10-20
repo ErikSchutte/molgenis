@@ -8,7 +8,7 @@
 
 <div class="col-md-12">
 
-	<#if exprImport.get('status') == 'FINISHED'>
+	<#if exprImport.get('status') == 'TEST'>
 		<#if (exprImport.getEntities("markerGenesForCounts")?size * 100 / nrOfMarkerGenesForCounts >= 80  && exprImport.getEntities("markerGenesForPct")?size * 100 / nrOfMarkerGenesForPcts >= 80)>
 			<div class="well">
 				<h3>Congratulations!</h3> We've successfully received your data.
@@ -89,7 +89,7 @@
 
 
 
-	<#elseif exprImport.get('status') == 'TEST'>
+	<#elseif exprImport.get('status') == 'FINISHED'>
 		<div class="well">
 			You've selected the test data.
 		</div>

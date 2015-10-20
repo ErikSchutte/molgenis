@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 
 import org.molgenis.MolgenisFieldTypes.FieldTypeEnum;
+import org.molgenis.cellcounts.settings.CellCountsSettings;
 import org.molgenis.data.AttributeMetaData;
 import org.molgenis.data.DataService;
 import org.molgenis.data.Entity;
@@ -67,7 +68,7 @@ public class CellCountsPredictorController extends MolgenisPluginController
 	private static final String GENES_REPOSITORY_ENSEMBL_GENE_ID_NAME = "EnsemblGeneID";
 	private static final String GENES_REPOSITORY_NAME = "BioMartGenes";
 	private static final String EXPR_IMPORT_REPOSITORY_NAME = "ExprImport";
-	public static final String ID = "decon-cell";
+	public static final String ID = "deconCell";
 	public static final String URI = MolgenisPluginController.PLUGIN_URI_PREFIX + ID;
 
 	private static final Logger LOG = LoggerFactory.getLogger(CellCountsPredictorController.class);
@@ -89,7 +90,7 @@ public class CellCountsPredictorController extends MolgenisPluginController
 
 	@Autowired
 	private SavedScriptRunner scriptRunner;
-
+	
 	ExecutorService executorService = Executors.newFixedThreadPool(5);
 
 	public CellCountsPredictorController()
@@ -100,8 +101,6 @@ public class CellCountsPredictorController extends MolgenisPluginController
 	@RequestMapping
 	public String init(Model model)
 	{
-		 Entity runtimeProperty = dataService.findOne("RuntimeProperty", "AAAACUAABCEA3NXYJRHRKNIAAE");
-		 model.addAttribute("runtimeProperty", runtimeProperty);
 		 String menuUrl = getMenuUrl();
 		 model.addAttribute("menuUrl", menuUrl);
 		return "view-decon-cell";

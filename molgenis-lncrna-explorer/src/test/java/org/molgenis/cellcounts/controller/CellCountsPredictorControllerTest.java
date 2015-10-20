@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutorService;
 
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.molgenis.cellcounts.settings.CellCountsSettings;
 import org.molgenis.data.AttributeMetaData;
 import org.molgenis.data.DataService;
 import org.molgenis.data.EntityMetaData;
@@ -24,7 +25,6 @@ import org.molgenis.data.support.DefaultEntityMetaData;
 import org.molgenis.data.support.MapEntity;
 import org.molgenis.data.support.QueryImpl;
 import org.molgenis.data.support.UuidGenerator;
-import org.molgenis.framework.server.MolgenisSettings;
 import org.molgenis.framework.ui.MolgenisPluginRegistry;
 import org.molgenis.script.SavedScriptRunner;
 import org.molgenis.security.permission.PermissionSystemService;
@@ -60,7 +60,7 @@ public class CellCountsPredictorControllerTest extends AbstractTestNGSpringConte
 	UuidGenerator generator;
 
 	@Autowired
-	private MolgenisSettings molgenisSettings;
+	private CellCountsSettings cellCountsSettings;
 
 	@Autowired
 	private SavedScriptRunner scriptRunner;
@@ -76,8 +76,7 @@ public class CellCountsPredictorControllerTest extends AbstractTestNGSpringConte
 		exprImport.set("importedEntity", "sample");
 		exprImport.set("markerGenesForCounts", Collections.emptyList());
 		exprImport.set("markerGenesForPct", Collections.emptyList());
-		Mockito.reset(dataService, metaDataService, permissionSystemService, generator, molgenisSettings);
-		when(molgenisSettings.getProperty("deconv2_sample_dataset")).thenReturn("sample");
+		Mockito.reset(dataService, metaDataService, permissionSystemService, generator, cellCountsSettings);
 
 		when(dataService.findOne("ExprImport", "12345")).thenReturn(exprImport);
 
@@ -227,12 +226,6 @@ public class CellCountsPredictorControllerTest extends AbstractTestNGSpringConte
 		PermissionSystemService permissionSystemService()
 		{
 			return mock(PermissionSystemService.class);
-		}
-
-		@Bean
-		MolgenisSettings molgenisSettings()
-		{
-			return mock(MolgenisSettings.class);
 		}
 
 		@Bean
