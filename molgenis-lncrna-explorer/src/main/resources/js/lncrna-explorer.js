@@ -21,26 +21,40 @@
 			var genePlots = [];
 
 			if (this.state.genes.length >= 2) {
-				genePlots = [ 
-				GenePlot({
+				genePlots = [ React.DOM.div({
+					className : "row"
+				}, GenePlot({
 					genes : this.state.genes,
 					scriptName : 'generateExpression%28rpkm%29Heatmap',
 					title : 'Cell type expression profile',
-					inputType: 'geneName'
-				}), 
-				GenePlot({
+					inputType : 'geneName'
+				})), React.DOM.div({
+					className : "row"
+				}, GenePlot({
 					genes : this.state.genes,
 					scriptName : 'correlationCoexpression',
 					title : 'Coexpression',
-					inputType: 'geneName'
-				}),	
-				GenePlot({
+					inputType : 'geneName'
+				})), React.DOM.div({
+					className : "row"
+				}, GenePlot({
 					genes : this.state.genes,
 					scriptName : 'grTcellHeatmap',
-					title : 'gr-Tcell',
-					inputType: 'geneID'
-				})
-				];
+					title : 'Gluten Specific T-cells',
+					inputType : 'geneID'
+				}), GenePlot({
+					genes : this.state.genes,
+					scriptName : 'timecourse_gs_tcells',
+					title : 'Time course gluten specific T-cells',
+					inputType : 'geneID'
+				})), React.DOM.div({
+					className : "row"
+				}, GenePlot({
+					genes : this.state.genes,
+					scriptName : 'stimuliHeatmap',
+					title : 'Stimulated PMBC expression',
+					inputType : 'geneID'
+				})) ];
 			}
 
 			return div({}, div({
@@ -107,15 +121,14 @@
 			genes : React.PropTypes.array.isRequired,
 			scriptName : React.PropTypes.string,
 			title : React.PropTypes.string,
-			inputType: React.PropTypes.string
+			inputType : React.PropTypes.string
 		},
 		_mapGenes : function() {
-			if (this.props.inputType == 'geneName'){
+			if (this.props.inputType == 'geneName') {
 				var geneNames = this.props.genes.map(function(e) {
 					return e.AssociatedGeneName;
 				})
-			}
-			else if (this.props.inputType == 'geneID'){
+			} else if (this.props.inputType == 'geneID') {
 				var geneNames = this.props.genes.map(function(e) {
 					return e.EnsemblGeneID;
 				})
@@ -127,7 +140,9 @@
 			return genes;
 		},
 		render : function() {
-			return React.DOM.div({}, React.DOM.h3({}, this.props.title), React.DOM.img({
+			return React.DOM.div({
+				className : "col-md-6"
+			}, React.DOM.h3({}, this.props.title), React.DOM.img({
 				src : 'http://localhost:8080/scripts/' + this.props.scriptName + '/run?genes=' + this._mapGenes()
 			}));
 		}
@@ -140,13 +155,5 @@
 		React.render(LncRNAExplorer({}), $('#explorer')[0]);
 
 	});
-	/*
-	 * + '<h3>Cell type expression profile</h3></br>' + '<img
-	 * src="http://localhost:8080/scripts/generateExpression%28rpkm%29Heatmap/run?genes=' +
-	 * genes + '"></br></br>' + '<h3>Coexpression</h3></br>' + '<img
-	 * src="http://localhost:8080/scripts/correlationCoexpression/run?genes=' +
-	 * genes + '">' + "")
-	 * 
-	 */
 
 }($, window.top.molgenis = window.top.molgenis || {}));
