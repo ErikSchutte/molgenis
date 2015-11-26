@@ -50,7 +50,7 @@
 			<span class="glyphicon glyphicon-question-sign" aria-hidden="true" style="font-size:1.0em;" data-toggle="popover" data-content="Enter a input matrix in .csv format, with expression counts of one or more samples, library size corrected (number of expression counts/number of total expression counts). The selected human reference assembly is GRCh37, version 71."</span>					
 
 		</div>
-		<div class="col-md-6" style="font-size:12pt;>	
+		<div class="col-md-6" style="font-size:12pt">	
 			<form method="post" id="wizardForm" name="wizardForm" enctype="multipart/form-data" action="/menu/main/decon-cell/readFile" role="form">	
 				<input type="file" name="upload" data-filename-placement="inside" title="Select a file..." id="input-file">
 				<button type="submit" class="btn btn-success" id="upload-file">Upload</button></br>
