@@ -51,7 +51,7 @@
 
 		</div>
 		<div class="col-md-6" style="font-size:12pt">	
-			<form method="post" id="wizardForm" name="wizardForm" enctype="multipart/form-data" action="/menu/main/decon-cell/readFile" role="form">	
+			<form method="post" id="wizardForm" name="wizardForm" enctype="multipart/form-data" action="/menu/main/deconCell/readFile" role="form">	
 				<input type="file" name="upload" data-filename-placement="inside" title="Select a file..." id="input-file">
 				<button type="submit" class="btn btn-success" id="upload-file">Upload</button></br>
 				<#if plugin_settings.sampleDatasetImportId?has_content><a href="${menuUrl}/report/${plugin_settings.sampleDatasetImportId}"> Or start prediction with test data!</a></#if>

@@ -22,10 +22,6 @@
 		$('input[type=file]').bootstrapFileInput();
 		$('.file-inputs').bootstrapFileInput();
 
-		// $('#upload-file').on('click', function() {
-		// submitFile()
-
-		// })
 
 	});
 
@@ -35,7 +31,7 @@
 
 		$.ajax({
 			type : 'POST',
-			url : "http://localhost:8080/menu/main/decon-cell" + "/readFile",
+			url : molgenis.getContextUrl() + "/readFile",
 			contentType : 'application/json',
 			data : submittedFile,
 			success : function(data) {
