@@ -94,7 +94,12 @@
 					scriptName : 'stimuliHeatmap',
 					title : 'Stimulated PMBC expression',
 					inputType : 'geneID'
-				})) ];
+				}), GenePlot({
+					genes : this.state.genesToPlot,
+					scriptName : 'stimuliSignificance',
+					title : 'Significance of stimulated PMBC expression',
+					inputType : 'geneID'
+				}))];
 			}
 
 			return div({}, div({
@@ -102,32 +107,36 @@
 			}, div({
 				className : 'col-md-1 col-md-offset-4'
 			}, molgenis.ui.Button({
-				id : 'zoom-in-button',
-				type : 'button',
-				style : 'info',
-				size : 'medium',
-				text : '+',
-				name : 'zoom-in',
-				disabled : false,
-				onClick : this._zoomIn
-			})), div({
-				className : 'col-md-1'
-			}, span({}, '' + this.state.windowSize)), div({
-				className : 'col-md-1'
-			}, molgenis.ui.Button({
 				id : 'zoom-out-button',
 				type : 'button',
 				style : 'info',
 				size : 'medium',
-				text : '-',
+				text : span({
+					className : 'glyphicon glyphicon-zoom-out'
+				}),
 				name : 'zoom-out',
 				disabled : false,
 				onClick : this._zoomOut
+			})), div({
+				className : 'col-md-1'
+			}, span({}, '' + this.state.windowSize + ' kb')), div({
+				className : 'col-md-1'
+			}, molgenis.ui.Button({
+				id : 'zoom-in-button',
+				type : 'button',
+				style : 'info',
+				size : 'medium',
+				text : span({
+					className : 'glyphicon glyphicon-zoom-in'
+				}),
+				name : 'zoom-in',
+				disabled : false,
+				onClick : this._zoomIn
 			}))), div({
 				className : 'row'
 			}, div({
 				className : 'col-md-4 col-md-offset-4'
-			}, React.DOM.div({}, molgenis.ui.EntitySelectBox({
+			}, div({}, molgenis.ui.EntitySelectBox({
 				entity : 'SnpsToPlot',
 				mode : 'view',
 				name : "name",
@@ -139,7 +148,7 @@
 				focus : false,
 				value : [],
 				onValueChange : this._onSnpSelect
-			})), React.DOM.div({}, molgenis.ui.EntitySelectBox({
+			})), div({}, molgenis.ui.EntitySelectBox({
 				entity : 'GenePos',
 				mode : 'view',
 				name : "name",
@@ -191,7 +200,7 @@
 			return genes;
 		},
 		render : function() {
-			return React.DOM.div({
+			return div({
 				className : "col-md-6 col-sm-12"
 			}, React.DOM.h3({}, this.props.title), React.DOM.img({
 				src : 'http://localhost:8080/scripts/' + this.props.scriptName + '/run?genes=' + this._mapGenes(),
@@ -201,6 +210,7 @@
 	});
 
 	var GenePlot = React.createFactory(GenePlotClass);
+	
 
 	$(function() {
 
