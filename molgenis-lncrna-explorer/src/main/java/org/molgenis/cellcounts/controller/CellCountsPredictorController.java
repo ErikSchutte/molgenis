@@ -90,7 +90,7 @@ public class CellCountsPredictorController extends MolgenisPluginController
 
 	@Autowired
 	private SavedScriptRunner scriptRunner;
-	
+
 	ExecutorService executorService = Executors.newFixedThreadPool(5);
 
 	public CellCountsPredictorController()
@@ -101,8 +101,8 @@ public class CellCountsPredictorController extends MolgenisPluginController
 	@RequestMapping
 	public String init(Model model)
 	{
-		 String menuUrl = getMenuUrl();
-		 model.addAttribute("menuUrl", menuUrl);
+		String menuUrl = getMenuUrl();
+		model.addAttribute("menuUrl", menuUrl);
 		return "view-decon-cell";
 	}
 

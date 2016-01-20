@@ -84,7 +84,7 @@ public class ExcelRepository extends AbstractRepository
 			public boolean hasNext()
 			{
 				// iterator skips empty lines.
-				if (it.hasNext() && next == null)
+				while (it.hasNext() && next == null)
 				{
 					ExcelEntity entity = new ExcelEntity(it.next(), colNamesMap, cellProcessors, getEntityMetaData());
 
@@ -96,11 +96,6 @@ public class ExcelRepository extends AbstractRepository
 							next = entity;
 							break;
 						}
-					}
-					// next line not empty?
-					if (next == null)
-					{
-						hasNext();
 					}
 				}
 				return next != null;

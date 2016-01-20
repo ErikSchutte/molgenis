@@ -95,7 +95,7 @@ public class ElasticSearchService implements SearchService, MolgenisTransactionL
 	public static final String CRUD_TYPE_FIELD_NAME = "MolgenisCrudType";
 	private static BulkProcessorFactory BULK_PROCESSOR_FACTORY = new BulkProcessorFactory();
 	private static List<String> NON_TRANSACTIONAL_ENTITIES = Arrays.asList(MolgenisTransactionLogMetaData.ENTITY_NAME,
-			MolgenisTransactionLogEntryMetaData.ENTITY_NAME);
+			MolgenisTransactionLogEntryMetaData.ENTITY_NAME, "lncrna_rpkm_LL"); //TODO: HACK!
 
 	public static enum IndexingMode
 	{
@@ -427,6 +427,7 @@ public class ElasticSearchService implements SearchService, MolgenisTransactionL
 	long index(String index, Iterable<? extends Entity> entities, EntityMetaData entityMetaData, CrudType crudType,
 			boolean updateIndex)
 	{
+		LOG.info("index");
 		String entityName = entityMetaData.getName();
 		String type = sanitizeMapperType(entityName);
 		String transactionId = null;
@@ -456,6 +457,10 @@ public class ElasticSearchService implements SearchService, MolgenisTransactionL
 				}
 				bulkProcessor.add(new IndexRequest().index(index).type(type).id(id).source(source));
 				++nrIndexedEntities;
+				if(nrIndexedEntities % 1 == 0)
+				{
+					LOG.info("indexed "+nrIndexedEntities+ " " + entityMetaData.getName() +" entities.");
+				}
 			}
 		}
 		finally
