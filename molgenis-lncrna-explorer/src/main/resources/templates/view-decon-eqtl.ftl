@@ -20,7 +20,7 @@
 
 			<div class="col-sm-6 col-md-4 col-md-offset-1">
 				<p>&nbsp;</p> 
-      			<img src="https://molgenis04.target.rug.nl/files/AAAACUAY2NW6RNXYJRHRKNIAAE" alt="Decon-eQTL"  style="min-height:280px;height:280px;">
+      			<img src="/img/decon-eqtl.png" alt="Decon-eQTL"  style="min-height:280px;height:280px;">
 				<p style="text-align: left;">&nbsp;</p> 
 			</div>
 		</div>

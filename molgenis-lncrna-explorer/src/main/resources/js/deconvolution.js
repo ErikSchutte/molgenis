@@ -239,7 +239,7 @@
 	;
 
 	function getUri(attrs, num, filters) {
-		var uri = 'https://molgenis04.target.rug.nl/api/v2/DeconvolutionPlot?attrs=' + attrs + '&num=' + num;
+		var uri = '/api/v2/DeconvolutionPlot?attrs=' + attrs + '&num=' + num;
 		var query = [];
 		if (filters.disease) {
 			query.push('disease==' + toRsqlValue(filters.disease));

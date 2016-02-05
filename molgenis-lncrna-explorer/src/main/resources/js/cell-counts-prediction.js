@@ -29,7 +29,7 @@ $.when($, window.top.molgenis = window.top.molgenis || {}, molgenis.getPluginSet
 	}
 
 	function startPrediction(resultSetRepositoryName, importedEntity) {
-		window.location = '/menu/main/deconCell/startPrediction?resultSetRepositoryName=' + resultSetRepositoryName + '&importedEntity=' + importedEntity;
+		window.location = molgenis.getContextUrl() + '/startPrediction?resultSetRepositoryName=' + resultSetRepositoryName + '&importedEntity=' + importedEntity;
 	}
 
 });

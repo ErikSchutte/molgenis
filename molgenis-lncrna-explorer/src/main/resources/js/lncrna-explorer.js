@@ -32,7 +32,7 @@
 			});
 			if (snp.value != null) {
 				$.get(
-						'http://localhost:8080/api/v2/GeneInfo?attrs=~id,EnsemblGeneID,AssociatedGeneName,GeneType&q=Chromosome=q=' + snp.value.Chromosome + ';GeneStart=le='
+						'/api/v2/GeneInfo?attrs=~id,EnsemblGeneID,AssociatedGeneName,GeneType&q=Chromosome=q=' + snp.value.Chromosome + ';GeneStart=le='
 								+ (parseInt(snp.value.POS, 10) + this.state.windowSize) + ';GeneEnd=ge=' + (parseInt(snp.value.POS, 10) - this.state.windowSize)).then(
 						this._onGenesFound);
 			}
@@ -106,37 +106,37 @@
 				div({
 					className : "row"
 				}, GenePlot({
-					url : 'http://localhost:8080/scripts/' + 'generateExpression%28rpkm%29Heatmap' + '/run?genes=' + this._mapGenes('geneName'),
+					url : '/scripts/' + 'generateExpression%28rpkm%29Heatmap' + '/run?genes=' + this._mapGenes('geneName'),
 					title : 'Cell type expression profile',
 					inputType : 'geneName'
 				}), GenePlot({
-					url : 'http://localhost:8080/scripts/' + 'correlationCoexpression' + '/run?genes=' + this._mapGenes('geneID'),
+					url : '/scripts/' + 'correlationCoexpression' + '/run?genes=' + this._mapGenes('geneID'),
 					title : 'Coexpression',
 					inputType : 'geneName'
 				})),div({
 					className : "row"
 				}, GenePlot({
-					url : 'http://localhost:8080/scripts/' + 'stimuliHeatmap' + '/run?genes=' + this._mapGenes('geneID'),
+					url : '/scripts/' + 'stimuliHeatmap' + '/run?genes=' + this._mapGenes('geneID'),
 					title : 'Stimulated PMBC expression',
 					inputType : 'geneID'
 				}), GenePlot({
-					url : 'http://localhost:8080/scripts/' + 'stimuliSignificance' + '/run?genes=' + this._mapGenes('geneID'),
+					url : '/scripts/' + 'stimuliSignificance' + '/run?genes=' + this._mapGenes('geneID'),
 					title : 'Significance of stimulated PMBC expression',
 					inputType : 'geneID'
 				})),div({
 					className : "row"
 				}, GenePlot({
-					url : 'http://localhost:8080/scripts/' + 'grTcellHeatmap' + '/run?genes=' + this._mapGenes('geneID'),
+					url : '/scripts/' + 'grTcellHeatmap' + '/run?genes=' + this._mapGenes('geneID'),
 					title : 'Gene expression in gluten Specific T-cells',
 					inputType : 'geneID'
 				}), GenePlot({
-					url : 'http://localhost:8080/scripts/' + 'timecourse_gs_tcells' + '/run?genes=' + this._mapGenes('geneID'),
+					url : '/scripts/' + 'timecourse_gs_tcells' + '/run?genes=' + this._mapGenes('geneID'),
 					title : 'Time course gene expression in gluten specific T-cells',
 					inputType : 'geneID'
 				})), div({
 					className : "row"
 				}, GenePlot({
-					url : 'http://localhost:8080/scripts/' + 'gdTcells_means' + '/run?genes=' + this._mapGenes('geneID'),
+					url : '/scripts/' + 'gdTcells_means' + '/run?genes=' + this._mapGenes('geneID'),
 					title : 'Mean gene expression in gamma delta T-cells',
 					inputType : 'geneID'
 //				}), GenePlot({
@@ -150,7 +150,7 @@
 					genePlots.splice(0, 0, div({
 						className : "row col-md-6 col-md-offset-3"
 					}, GenePlot({
-						url : 'http://localhost:8080/scripts/' + 'lociPlots' + '/run?gsnp=' + this._getSnp() + '&chrLoci=' + this._getChr() + '&startLoci='
+						url : '/scripts/' + 'lociPlots' + '/run?gsnp=' + this._getSnp() + '&chrLoci=' + this._getChr() + '&startLoci='
 								+ this._getStartLoci() + '&endLoci=' + this._getEndLoci(),
 						title : this._getSnp() + ", chr" + this._getChr() + ", " + this._getStartLoci() + "-" + this._getEndLoci(),
 					})))
