@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.StreamSupport;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -59,6 +60,7 @@ import com.google.common.collect.Iterables;
 
 import autovalue.shaded.com.google.common.common.base.Preconditions;
 import autovalue.shaded.com.google.common.common.collect.ImmutableMap;
+import static org.molgenis.data.EntityMetaData.AttributeRole.ROLE_ID;
 
 @Controller
 @RequestMapping(URI)
@@ -225,7 +227,7 @@ public class CellCountsPredictorController extends MolgenisPluginController
 		{
 			Iterable<Entity> transformedRows = transform(r,
 					entityRow -> transformEntity(r.getEntityMetaData(), entityRow, target.getEntityMetaData()));
-			target.add(filter(transformedRows, row -> row != null));
+			target.add(StreamSupport.stream(filter(transformedRows, row -> row != null).spliterator(), false));
 			updateImportEntityWithStatistics(target, report);
 		}
 		catch (RuntimeException e)
@@ -362,7 +364,7 @@ public class CellCountsPredictorController extends MolgenisPluginController
 		String importedExpressionData = generator.generateId();
 		DefaultEntityMetaData emd = new DefaultEntityMetaData(importedExpressionData);
 		emd.setPackage(new PackageImpl("expression", "Uploaded expression data"));
-		emd.addAttribute("gene").setIdAttribute(true).setNillable(false);
+		emd.addAttribute("gene", ROLE_ID).setNillable(false);
 		emd.addAllAttributeMetaData(transform(skip(r.getEntityMetaData().getAtomicAttributes(), 1),
 				attr -> new DefaultAttributeMetaData(attr.getName(), FieldTypeEnum.DECIMAL)));
 
