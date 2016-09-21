@@ -39,8 +39,6 @@
 				return self.createComplexFilter(attribute, filter, wizard, null);
 				break;
 			case 'COMPOUND' :
-			
-			case 'IMAGE':
 				throw 'Unsupported data type: ' + attribute.fieldType;
 			default:
 				throw 'Unknown data type: ' + attribute.fieldType;
@@ -183,7 +181,6 @@
 				});
 				return htmlEscape('(' + array.join(' ' + operator + ' ') + ')');
 			case 'COMPOUND' :
-			case 'IMAGE':
 				throw 'Unsupported data type: ' + filter.attribute.fieldType;
 			default:
 				throw 'Unknown data type: ' + filter.attribute.fieldType;
@@ -551,7 +548,6 @@
 				});
 				break;
 			case 'COMPOUND' :
-			case 'IMAGE':
 				throw 'Unsupported data type: ' + attribute.fieldType;
 			default:
 				throw 'Unknown data type: ' + attribute.fieldType;			
@@ -652,7 +648,8 @@
 				
 				if(value) {
 					// Add values
-					if(attribute.fieldType === 'MREF' || attribute.fieldType == 'CATEGORICAL_MREF' || attribute.fieldType === 'XREF'){
+					if(attribute.fieldType === 'MREF' || attribute.fieldType === 'CATEGORICAL_MREF' ||
+						attribute.fieldType === 'XREF' || attribute.fieldType === 'FILE'){
 						var mrefValues = value.split(',');
 						$(mrefValues).each(function(i){
 							values.push(mrefValues[i]);
@@ -783,7 +780,6 @@
 							attrOperator = 'SEARCH';
 							break;
 						case 'COMPOUND':
-						case 'IMAGE':
 							throw 'Unsupported data type: ' + attribute.fieldType;
 						default:
 							throw 'Unknown data type: ' + attribute.fieldType;

@@ -72,4 +72,15 @@ public interface AppSettings
 
 	boolean getGoogleAnalyticsAccountPrivacyFriendlyMolgenis();
 
+	void setGoogleSignIn(boolean signIn);
+
+	boolean getGoogleSignIn();
+
+	void setGoogleAppClientId(String googleAppClientId);
+
+	String getGoogleAppClientId();
+
+	void setCustomJavascript(String customJavascript);
+
+	String getCustomJavascript();
 }
