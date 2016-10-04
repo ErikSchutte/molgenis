@@ -27,7 +27,7 @@ public class RScriptExecutor
 	private final String rLibs;
 
 	@Autowired
-	public RScriptExecutor(@Value("${r_script_executable:/usr/bin/Rscript}") String rScriptExecutable,
+	public RScriptExecutor(@Value("${r_script_executable:/usr/local/Cellar/r/3.3.1_2/R.framework/Versions/3.3/Resources/Rscript}") String rScriptExecutable,
 			@Value("${r_libs:@null}") String rLibs)
 	{
 		this.rScriptExecutable = requireNonNull(rScriptExecutable);

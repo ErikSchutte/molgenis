@@ -32,7 +32,7 @@
 			});
 			if (snp.value != null) {
 				$.get(
-						'/api/v2/GeneInfo?attrs=~id,EnsemblGeneID,AssociatedGeneName,GeneType&q=Chromosome=q=' + snp.value.Chromosome + ';GeneStart=le='
+						'/api/v2/lnc_rna_explorer_GeneInfo?attrs=~id,EnsemblGeneID,AssociatedGeneName,GeneType&q=ChromosomeName=q=' + snp.value.Chromosome + ';GeneStart=le='
 								+ (parseInt(snp.value.POS, 10) + this.state.windowSize) + ';GeneEnd=ge=' + (parseInt(snp.value.POS, 10) - this.state.windowSize)).then(
 						this._onGenesFound);
 			}
@@ -102,59 +102,64 @@
 					className : "row col-md-6 col-md-offset-3"
 				}, GeneTable({
 					genes: this.state.genes
-				})), 
-				div({
-					className : "row"
-				}, GenePlot({
-					url : '/scripts/' + 'generateExpression%28rpkm%29Heatmap' + '/run?genes=' + this._mapGenes('geneName'),
-					title : 'Cell type expression profile',
-					inputType : 'geneName'
-				}), GenePlot({
-					url : '/scripts/' + 'correlationCoexpression' + '/run?genes=' + this._mapGenes('geneID'),
-					title : 'Coexpression',
-					inputType : 'geneName'
-				})),div({
-					className : "row"
-				}, GenePlot({
-					url : '/scripts/' + 'stimuliHeatmap' + '/run?genes=' + this._mapGenes('geneID'),
-					title : 'Stimulated PMBC expression',
+				}), 
+				//div({
+					//className : "row"
+				//}, 
+				//GenePlot({
+					//url : '/scripts/' + 'generateExpression%28rpkm%29Heatmap' + '/run?genes=' + this._mapGenes('geneName'),
+					//title : 'Cell type expression profile',
+					//inputType : 'geneName'
+				//}), 
+				//GenePlot({
+					//url : '/scripts/' + 'correlation_coexpression' + '/run?genes=' + this._mapGenes('geneID'),
+					//title : 'Coexpression',
+					//inputType : 'geneName'
+				//})
+				
+				//,div({
+				//	className : "row"
+				//}, GenePlot({
+				//	url : '/scripts/' + 'expressionPBMC_stimuli_heatmap' + '/run?genes=' + this._mapGenes('geneID'),
+				//	title : 'Stimulated PMBC expression',
+				//	inputType : 'geneID'
+				//}), GenePlot({
+				//	url : '/scripts/' + 'expressionPBMC_stimuli_significance' + '/run?genes=' + this._mapGenes('geneID'),
+				//	title : 'Significance of stimulated PMBC expression',
+				//	inputType : 'geneID'
+				//})),div({
+				//	className : "row"
+				//}, GenePlot({
+				//	url : '/scripts/' + 'grTcellHeatmap' + '/run?genes=' + this._mapGenes('geneID'),
+				//	title : 'Gene expression in gluten Specific T-cells',
+				//	inputType : 'geneID'
+				//}), GenePlot({
+				//	url : '/scripts/' + 'glutenSpecific_Tcell_timecourse' + '/run?genes=' + this._mapGenes('geneID'),
+				//	title : 'Time course gene expression in gluten specific T-cells',
+				//	inputType : 'geneID'
+				//})), div({
+				//	className : "row"
+				//}, GenePlot({
+				//	url : '/scripts/' + 'gammaDelta_Tcell_expression' + '/run?genes=' + this._mapGenes('geneID'),
+				//	title : 'Mean gene expression in gamma delta T-cells',
+				//	inputType : 'geneID'
+				//}),
+				GenePlot({
+					url : '/scripts/' + 'cellType_ExpProfile_heatmap' + '/run?genes=' + this._mapGenes('geneID'),
+					title : '7 Cell Type Expression',
 					inputType : 'geneID'
-				}), GenePlot({
-					url : '/scripts/' + 'stimuliSignificance' + '/run?genes=' + this._mapGenes('geneID'),
-					title : 'Significance of stimulated PMBC expression',
-					inputType : 'geneID'
-				})),div({
-					className : "row"
-				}, GenePlot({
-					url : '/scripts/' + 'grTcellHeatmap' + '/run?genes=' + this._mapGenes('geneID'),
-					title : 'Gene expression in gluten Specific T-cells',
-					inputType : 'geneID'
-				}), GenePlot({
-					url : '/scripts/' + 'timecourse_gs_tcells' + '/run?genes=' + this._mapGenes('geneID'),
-					title : 'Time course gene expression in gluten specific T-cells',
-					inputType : 'geneID'
-				})), div({
-					className : "row"
-				}, GenePlot({
-					url : '/scripts/' + 'gdTcells_means' + '/run?genes=' + this._mapGenes('geneID'),
-					title : 'Mean gene expression in gamma delta T-cells',
-					inputType : 'geneID'
-//				}), GenePlot({
-//					url : 'http://localhost:8080/scripts/' + 'gdTcells_medians' + '/run?genes=' + this._mapGenes('geneID'),
-//					title : 'Median gene expression in gamma delta T-cells',
-//					inputType : 'geneID'
 				})) 
 				];
 
-				if (this.state.snp) {
-					genePlots.splice(0, 0, div({
-						className : "row col-md-6 col-md-offset-3"
-					}, GenePlot({
-						url : '/scripts/' + 'lociPlots' + '/run?gsnp=' + this._getSnp() + '&chrLoci=' + this._getChr() + '&startLoci='
-								+ this._getStartLoci() + '&endLoci=' + this._getEndLoci(),
-						title : this._getSnp() + ", chr" + this._getChr() + ", " + this._getStartLoci() + "-" + this._getEndLoci(),
-					})))
-				}
+	//			if (this.state.snp) {
+	//				genePlots.splice(0, 0, div({
+	//					className : "row col-md-6 col-md-offset-3"
+	//				}, GenePlot({
+	//					url : '/scripts/' + 'lociPlots' + '/run?gsnp=' + this._getSnp() + '&chrLoci=' + this._getChr() + '&startLoci='
+	//							+ this._getStartLoci() + '&endLoci=' + this._getEndLoci(),
+	//					title : this._getSnp() + ", chr" + this._getChr() + ", " + this._getStartLoci() + "-" + this._getEndLoci(),
+	//				})))
+	//			}
 			}
 
 			return div({}, div({
@@ -194,8 +199,23 @@
 				className : 'row'
 			}, div({
 				className : 'col-md-4 col-md-offset-4'
-			}, div({}, React.DOM.h4({}, "Select a SNP (optional):"),molgenis.ui.EntitySelectBox({
-				entity : 'SnpsToPlot',
+			}, 
+			div({},React.DOM.h4({}, "Select Dataset:"), molgenis.ui.EntitySelectBox({
+				package : 'lnc_rna_explorer_Data',
+				entity : 'lnc_rna_explorer_Data_rpkm7CT',
+				mode : 'view',
+				name : "name",
+				disabled : false,
+				readOnly : false,
+				multiple : true,
+				required : true,
+				placeholder : 'By default, all datasets are used',
+				focus : false,
+				value : this.state.genes,
+				onValueChange : this._onGenesSelection
+			})),
+			div({}, React.DOM.h4({}, "Select a SNP (optional):"),molgenis.ui.EntitySelectBox({
+				entity : 'lnc_rna_explorer_SnpsToPlot',
 				mode : 'view',
 				name : "name",
 				disabled : false,
@@ -207,7 +227,7 @@
 				value : [],
 				onValueChange : this._onSnpSelect
 			})), div({},React.DOM.h4({}, "Select genes:"), molgenis.ui.EntitySelectBox({
-				entity : 'GeneInfo',
+				entity : 'lnc_rna_explorer_GeneInfo',
 				mode : 'view',
 				name : "name",
 				disabled : false,
@@ -285,7 +305,7 @@
 		else if(type == 'antisense' ) {
 			return 'success';
 		}
-		return '';
+		return 'fail';
 	}
 	
 	var GeneTableClass = React.createClass({
@@ -297,8 +317,8 @@
 		render : function() {
 			var rows = this.props.genes.map(function(gene) {
 				return React.DOM.tr({className:rowClassName(gene.GeneType), key: gene.EnsemblGeneID}, [
-				              React.DOM.td({key:'name'}, gene.AssociatedGeneName),
 				              React.DOM.td({key: 'ensemblID'}, gene.EnsemblGeneID),
+				              React.DOM.td({key:'name'}, gene.AssociatedGeneName),
 				              React.DOM.td({key: 'type'}, gene.GeneType)
 				              ]
 				)
