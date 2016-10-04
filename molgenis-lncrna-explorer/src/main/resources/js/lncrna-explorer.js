@@ -11,9 +11,16 @@
 				genes : [],
 				snp : null,
 				genesToPlot : [],
-				windowSize : 250000
+				windowSize : 250000,
+				data : []
 
 			};
+		},
+		_onDataSelect : function(data) {
+			this.setState({
+				data : data.value
+				// : []
+			});
 		},
 		_onGenesSelection : function(genes) {
 			this.setState({
@@ -32,8 +39,9 @@
 			});
 			if (snp.value != null) {
 				$.get(
-						'/api/v2/lnc_rna_explorer_GeneInfo?attrs=~id,EnsemblGeneID,AssociatedGeneName,GeneType&q=ChromosomeName=q=' + snp.value.Chromosome + ';GeneStart=le='
-								+ (parseInt(snp.value.POS, 10) + this.state.windowSize) + ';GeneEnd=ge=' + (parseInt(snp.value.POS, 10) - this.state.windowSize)).then(
+						'/api/v2/lnc_rna_explorer_GeneInfo?attrs=~id,EnsemblGeneID,AssociatedGeneName,GeneType&q=ChromosomeName=q='
+						+ snp.value.Chromosome + ';GeneStart=le='+ (parseInt(snp.value.POS, 10) + this.state.windowSize)
+						+ ';GeneEnd=ge=' + (parseInt(snp.value.POS, 10) - this.state.windowSize)).then(
 						this._onGenesFound);
 			}
 			return snp;
@@ -201,18 +209,17 @@
 				className : 'col-md-4 col-md-offset-4'
 			}, 
 			div({},React.DOM.h4({}, "Select Dataset:"), molgenis.ui.EntitySelectBox({
-				package : 'lnc_rna_explorer_Data',
 				entity : 'lnc_rna_explorer_Data_rpkm7CT',
 				mode : 'view',
 				name : "name",
 				disabled : false,
 				readOnly : false,
-				multiple : true,
+				multiple : false,
 				required : true,
 				placeholder : 'By default, all datasets are used',
 				focus : false,
-				value : this.state.genes,
-				onValueChange : this._onGenesSelection
+				value : [],
+				onValueChange : this._onDataSelect
 			})),
 			div({}, React.DOM.h4({}, "Select a SNP (optional):"),molgenis.ui.EntitySelectBox({
 				entity : 'lnc_rna_explorer_SnpsToPlot',
@@ -323,8 +330,10 @@
 				              ]
 				)
 			});
-			return React.DOM.div({style: {height: '300px', overflow: 'scroll'}}, React.DOM.table({className:'table table-condensed'},
-					[React.DOM.thead({key:'header'}, React.DOM.tr(null, [React.DOM.th({key:'name'}, 'Gene Name'), React.DOM.th({key:'ensemblID'}, 'Gene Identifier'), React.DOM.th({key:'type'}, 'Type')])),
+			return React.DOM.div({style: {height: '300px', overflow: 'scroll'}},
+				React.DOM.table({className:'table table-condensed'},[React.DOM.thead({key:'header'},
+					React.DOM.tr(null, [React.DOM.th({key:'name'}, 'Gene Name'),
+					React.DOM.th({key:'ensemblID'}, 'Gene Identifier'), React.DOM.th({key:'type'}, 'Type')])),
 					React.DOM.tbody({key: 'body'}, rows)]));
 		}
 	});
