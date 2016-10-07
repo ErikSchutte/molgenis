@@ -1,5 +1,5 @@
 (function($, molgenis) {
-
+	React.DOM.style({div:{width:"500px"}})
 	var div = React.DOM.div;
 	var span = React.DOM.span;
 
@@ -39,7 +39,7 @@
 			});
 			if (snp.value != null) {
 				$.get(
-						'/api/v2/lnc_rna_explorer_GeneInfo?attrs=~id,EnsemblGeneID,AssociatedGeneName,GeneType&q=ChromosomeName=q='
+						'/api/v2/lncrna_GeneInfo?attrs=~id,EnsemblGeneID,AssociatedGeneName,GeneType&q=ChromosomeName=q='
 						+ snp.value.Chromosome + ';GeneStart=le='+ (parseInt(snp.value.POS, 10) + this.state.windowSize)
 						+ ';GeneEnd=ge=' + (parseInt(snp.value.POS, 10) - this.state.windowSize)).then(
 						this._onGenesFound);
@@ -107,57 +107,52 @@
 
 			if (this.state.genesToPlot.length >= 2) {
 				genePlots = [div({
+					style : {width:"auto",margin:"auto"},
 					className : "row col-md-6 col-md-offset-3"
 				}, GeneTable({
 					genes: this.state.genes
-				}), 
-				//div({
-					//className : "row"
-				//}, 
-				//GenePlot({
-					//url : '/scripts/' + 'generateExpression%28rpkm%29Heatmap' + '/run?genes=' + this._mapGenes('geneName'),
-					//title : 'Cell type expression profile',
-					//inputType : 'geneName'
-				//}), 
-				//GenePlot({
-					//url : '/scripts/' + 'correlation_coexpression' + '/run?genes=' + this._mapGenes('geneID'),
-					//title : 'Coexpression',
-					//inputType : 'geneName'
-				//})
-				
-				//,div({
-				//	className : "row"
-				//}, GenePlot({
-				//	url : '/scripts/' + 'expressionPBMC_stimuli_heatmap' + '/run?genes=' + this._mapGenes('geneID'),
-				//	title : 'Stimulated PMBC expression',
-				//	inputType : 'geneID'
-				//}), GenePlot({
-				//	url : '/scripts/' + 'expressionPBMC_stimuli_significance' + '/run?genes=' + this._mapGenes('geneID'),
-				//	title : 'Significance of stimulated PMBC expression',
-				//	inputType : 'geneID'
-				//})),div({
-				//	className : "row"
-				//}, GenePlot({
-				//	url : '/scripts/' + 'grTcellHeatmap' + '/run?genes=' + this._mapGenes('geneID'),
-				//	title : 'Gene expression in gluten Specific T-cells',
-				//	inputType : 'geneID'
-				//}), GenePlot({
-				//	url : '/scripts/' + 'glutenSpecific_Tcell_timecourse' + '/run?genes=' + this._mapGenes('geneID'),
-				//	title : 'Time course gene expression in gluten specific T-cells',
-				//	inputType : 'geneID'
-				//})), div({
-				//	className : "row"
-				//}, GenePlot({
-				//	url : '/scripts/' + 'gammaDelta_Tcell_expression' + '/run?genes=' + this._mapGenes('geneID'),
-				//	title : 'Mean gene expression in gamma delta T-cells',
-				//	inputType : 'geneID'
-				//}),
-				GenePlot({
+				}), div({
+					className : "row"
+				}, GenePlot({
 					url : '/scripts/' + 'cellType_ExpProfile_heatmap' + '/run?genes=' + this._mapGenes('geneID'),
 					title : '7 Cell Type Expression',
 					inputType : 'geneID'
-				})) 
-				];
+				}), GenePlot({
+					url : '/scripts/' + 'correlation_coexpression' + '/run?genes=' + this._mapGenes('geneID'),
+					title : 'Coexpression',
+					inputType : 'geneName'
+				})), div({
+					className : "row"
+				}, GenePlot({
+					url : '/scripts/' + 'expressionPBMC_stimuli_heatmap' + '/run?genes=' + this._mapGenes('geneID'),
+					title : 'Stimulated PMBC expression',
+					inputType : 'geneID'
+				}), GenePlot({
+					url : '/scripts/' + 'expressionPBMC_stimuli_significance' + '/run?genes=' + this._mapGenes('geneID'),
+					title : 'Significance of stimulated PMBC expression',
+					inputType : 'geneID'
+				})), div({
+					className: "row"
+				}, GenePlot({
+					url: '/scripts/' + 'glutenSpecific_Tcell_heatmap' + '/run?genes=' + this._mapGenes('geneID'),
+					title: 'Gene expression in gluten Specific T-cells',
+					inputType: 'geneID'
+				}), GenePlot({
+					url : '/scripts/' + 'glutenSpecific_Tcell_timecourse' + '/run?genes=' + this._mapGenes('geneID'),
+					title : 'Time course gene expression in gluten specific T-cells',
+					inputType : 'geneID'
+				})), div({
+					className : "row"
+				}, GenePlot({
+					url : '/scripts/' + 'gammaDelta_Tcell_expression' + '/run?genes=' + this._mapGenes('geneID'),
+					title : 'Mean gene expression in gamma delta T-cells',
+					inputType : 'geneID'
+				// }),	GenePlot({
+				// 	url : '/scripts/' + 'cellType_ExpProfile_heatmap' + '/run?genes=' + this._mapGenes('geneID'),
+				// 	title : '7 Cell Type Expression',
+				// 	inputType : 'geneID'
+				}))
+				)];
 
 	//			if (this.state.snp) {
 	//				genePlots.splice(0, 0, div({
@@ -171,6 +166,7 @@
 			}
 
 			return div({}, div({
+
 				className : 'row'
 			}, 
 			div({
@@ -209,7 +205,16 @@
 				className : 'col-md-4 col-md-offset-4'
 			}, 
 			div({},React.DOM.h4({}, "Select Dataset:"), molgenis.ui.EntitySelectBox({
-				entity : 'lnc_rna_explorer_Data_rpkm7CT',
+				entity : 'entities',
+				query : {
+					operator : 'NESTED',
+					nestedRules : [
+						{field : 'package', operator : 'EQUALS', value : 'lncrna_data'},
+						{operator : 'AND'},
+						{operator : 'NOT'},
+						{field : 'abstract', operator : 'EQUALS', value : 'true'}
+					]
+				},
 				mode : 'view',
 				name : "name",
 				disabled : false,
@@ -222,7 +227,7 @@
 				onValueChange : this._onDataSelect
 			})),
 			div({}, React.DOM.h4({}, "Select a SNP (optional):"),molgenis.ui.EntitySelectBox({
-				entity : 'lnc_rna_explorer_SnpsToPlot',
+				entity : 'lncrna_SnpsToPlot',
 				mode : 'view',
 				name : "name",
 				disabled : false,
@@ -234,7 +239,7 @@
 				value : [],
 				onValueChange : this._onSnpSelect
 			})), div({},React.DOM.h4({}, "Select genes:"), molgenis.ui.EntitySelectBox({
-				entity : 'lnc_rna_explorer_GeneInfo',
+				entity : 'lncrna_GeneInfo',
 				mode : 'view',
 				name : "name",
 				disabled : false,
@@ -277,15 +282,17 @@
 
 			if (this.state.loaded) {
 				return div({
-					className : "col-md-6 col-sm-12"
+					className : "col-md-6 col-sm-12",
+					style : this.props.style
 				}, React.DOM.h3({}, this.props.title), React.DOM.img({
+					style : this.props.style,
 					src : this.props.url
 				}));
 			} else {
 				return div({
 					className : "col-md-6 col-sm-12"
 				}, React.DOM.h3({}, this.props.title), React.DOM.img({
-					src : '/css/select2-spinner.gif'
+					src : '/img/select2-spinner.gif'
 				}));
 			}
 		},
@@ -298,7 +305,6 @@
 					loaded : true
 				})
 			}
-
 			img.src = this.props.url
 		}
 	});
