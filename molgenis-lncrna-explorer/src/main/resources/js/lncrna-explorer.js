@@ -12,18 +12,14 @@
                 snp: null,
                 genesToPlot: [],
                 windowSize: 250000,
-                dataset: "",
+                datasets: [],
                 qtl: []
             };
         },
         _onDatasetSelect: function (dataset) {
             this.setState({
-                dataset: dataset.value
+                datasets: dataset.value
             });
-            console.log(this.state.plots);
-        },
-        _confirmData: function () {
-            return this.state.dataset.fullName;
         },
         _onGenesSelection: function (genes) {
             this.setState({
@@ -111,7 +107,9 @@
         _filterForPlotTypes: function() {
             var self = this;
             return this.props.plots.filter(function(plot) {
-                return plot.Dataset.fullName === self.state.dataset.fullName
+                return self.state.datasets.some(function(dataset){
+                    return plot.Dataset.fullName === dataset.fullName;
+                });
             })
         },
         _chunk: function  (arr, len) {
@@ -150,170 +148,6 @@
                 }, GeneTable({
                     genes: this.state.genes
                 }))].concat(genePlots);
-
-                //
-                // if (this.state.dataset.fullName == 'lncrna_data_Tcell123samples') {
-                //     genePlots = [div({
-                //         style: {width:"90vw", margin: "auto"},
-                //         className: "row col-md-6 col-md-offset-3"
-                //     }, GeneTable({
-                //         genes: this.state.genes
-                //     }), div({
-                //         className: "row"
-                //     },  GenePlot({
-                //         url: '/scripts/' + 'correlation_coexpression' + '/run?genes=' + this._mapGenes('geneID')
-                //         + '&data=' + this._confirmData(),
-                //         title: 'Coexpression',
-                //         inputType: 'geneName'
-                //     }), GenePlot({
-                //         url: '/scripts/' + 'glutenSpecific_Tcell_heatmap' + '/run?genes=' + this._mapGenes('geneID')
-                //         + '&data=' + this._confirmData(),
-                //         title: 'Gene expression in gluten Specific T-cells',
-                //         inputType: 'geneID'
-                //     })), div ({
-                //         className: "row"
-                //     }, GenePlot({
-                //         url: '/scripts/' + 'glutenSpecific_Tcell_timecourse' + '/run?genes=' + this._mapGenes('geneID')
-                //         + '&data=' + this._confirmData(),
-                //         title: 'Time course gene expression in gluten specific T-cells',
-                //         inputType: 'geneID'
-                //     }))
-                //     )];
-                // } else if (this.state.dataset.fullName == 'lncrna_data_exprVST') {
-                //     genePlots = [div({
-                //             style: {width: "90vw", margin: "auto"},
-                //             className: "row col-md-6 col-md-offset-3"
-                //         }, GeneTable({
-                //             genes: this.state.genes
-                //         }), div({
-                //             className: "row"
-                //         },  GenePlot({
-                //             url: '/scripts/' + 'correlation_coexpression' + '/run?genes=' + this._mapGenes('geneID')
-                //             + '&data=' + this._confirmData(),
-                //             title: 'Coexpression',
-                //             inputType: 'geneName'
-                //         }), GenePlot({
-                //             url: '/scripts/' + 'glutenSpecific_Tcell_heatmap' + '/run?genes=' + this._mapGenes('geneID')
-                //             + '&data=' + this._confirmData(),
-                //             title: 'Gene expression in gluten Specific T-cells',
-                //             inputType: 'geneID'
-                //         })), div ({
-                //             className: "row"
-                //         }, GenePlot({
-                //             url: '/scripts/' + 'glutenSpecific_Tcell_timecourse' + '/run?genes=' + this._mapGenes('geneID')
-                //             + '&data=' + this._confirmData(),
-                //             title: 'Time course gene expression in gluten specific T-cells',
-                //             inputType: 'geneID'
-                //         }))
-                //     )];
-                // } else if (this.state.dataset.fullName == 'lncrna_data_meangdTcells') {
-                //     genePlots = [div({
-                //         style: {width: "90vw", margin: "auto"},
-                //         className: "row col-md-6 col-md-offset-3"
-                //     }, GeneTable({
-                //         genes: this.state.genes
-                //     }), div({
-                //             className: "row"
-                //     }, GenePlot({
-                //         url: '/scripts/' + 'meangdTcells_heatmap' + '/run?genes=' + this._mapGenes('geneID')
-                //         + '&data=' + this._confirmData(),
-                //         title: 'Mean gdTcells per Condition',
-                //         inputType: 'geneID'
-                //     }))
-                //     )];
-                // } else if (this.state.dataset.fullName == 'lncrna_data_rpkm7CT') {
-                //     genePlots = [div({
-                //         style: {width: "90vw", margin: "auto"},
-                //         className: "row col-md-6 col-md-offset-3"
-                //     }, GeneTable({
-                //         genes: this.state.genes
-                //     }), div({
-                //         className: "row"
-                //     }, GenePlot({
-                //         url: '/scripts/' + 'cellType_ExpProfile_heatmap' + '/run?genes=' + this._mapGenes('geneID')
-                //         + '&data=' + this._confirmData(),
-                //         title: '7 Cell Type Expression',
-                //         inputType: 'geneID'
-                //     }))
-                //     )];
-
-                // genePlots = [div({
-                //         style: {width: "auto", margin: "auto"},
-                //         className: "row col-md-6 col-md-offset-3"
-                //     }, GeneTable({
-                //         genes: this.state.genes
-                //     }), div({
-                //         className: "row"
-                //     }, GenePlot({
-                //         url: '/scripts/' + 'cellType_ExpProfile_heatmap' + '/run?genes=' + this._mapGenes('geneID')
-                //         + '&data=' + this._confirmData(),
-                //         title: '7 Cell Type Expression',
-                //         inputType: 'geneID'
-                //     }), GenePlot({
-                //         url: '/scripts/' + 'correlation_coexpression' + '/run?genes=' + this._mapGenes('geneID')
-                //         + '&data=' + this._confirmData(),
-                //         title: 'Coexpression',
-                //         inputType: 'geneName'
-                //     })), div({
-                //         className: "row"
-                //     }
-                //     // GenePlot({
-                //     // 	url: '/scripts/' + 'expressionPBMC_stimuli_heatmap' + '/run?genes=' + this._mapGenes('geneID') +
-                //     // 	'&data=' + this._confirmData(),
-                //     // 	title: 'Stimulated PMBC expression',
-                //     // 	inputType: 'geneID'
-                //     // }), GenePlot({
-                //     // 	url: '/scripts/' + 'expressionPBMC_stimuli_significance' + '/run?genes=' + this._mapGenes('geneID') +
-                //     // 	'&data=' + this._confirmData(),
-                //     // 	title: 'Significance of stimulated PMBC expression',
-                //     // 	inputType: 'geneID'
-                //     // })
-                //     ), div({
-                //         className: "row"
-                //     }, GenePlot({
-                //         url: '/scripts/' + 'glutenSpecific_Tcell_heatmap' + '/run?genes=' + this._mapGenes('geneID')
-                //         + '&data=' + this._confirmData(),
-                //         title: 'Gene expression in gluten Specific T-cells',
-                //         inputType: 'geneID'
-                //     }), GenePlot({
-                //         url: '/scripts/' + 'glutenSpecific_Tcell_timecourse' + '/run?genes=' + this._mapGenes('geneID')
-                //         + '&data=' + this._confirmData(),
-                //         title: 'Time course gene expression in gluten specific T-cells',
-                //         inputType: 'geneID'
-                //     })), div({
-                //         className: "row"
-                //     })
-                //     // GenePlot({
-                //     // 	url: '/scripts/' + 'gammaDelta_Tcell_expression' + '/run?genes=' + this._mapGenes('geneID') +
-                //     // 	'&data=' + this._confirmData(),
-                //     // 	title: 'Mean gene expression in gamma delta T-cells',
-                //     // 	inputType: 'geneID'
-                //     // })
-                //
-                // )];
-                //
-                // // if (this.state.snp) {
-                // // 	genePlots.splice(0, 0, div({
-                // // 		className: "row col-md-6 col-md-offset-3"
-                // // 	}, GenePlot({
-                // // 		url: '/scripts/' + 'lociPlots' + '/run?gsnp=' + this._getSnp() + '&chrLoci=' + this._getChr() + '&startLoci='
-                // // 		+ this._getStartLoci() + '&endLoci=' + this._getEndLoci(),
-                // // 		title: this._getSnp() + ", chr" + this._getChr() + ", " + this._getStartLoci() + "-" + this._getEndLoci() +
-                // // 		'&data=' + this._confirmData(),
-                // // 	})))
-                // // }
-                //
-                // qtlPlots = [div({
-                //         // style: {width: "auto", margin: "auto"},
-                //         className: "row col-md-6 col-md-offset-3"
-                //     }, QTLTable({
-                //         qtl: this.state.qtl
-                //     }, QTLPlot({
-                //         url: '/scripts/' + 'eQTL_mapping' + '/run?genes=' + this._mapGenes('geneID'),
-                //         title: 'Mapped eQTLs',
-                //         inputType: 'geneID'
-                //     }))
-                // )];
             }
 
             return div({}, div({
@@ -368,11 +202,11 @@
                     name: "name",
                     disabled: false,
                     readOnly: false,
-                    multiple: false,
+                    multiple: true,
                     required: true,
                     placeholder: 'Select a dataset',
                     focus: false,
-                    value: this.state.dataset,
+                    value: this.state.datasets,
                     onValueChange: this._onDatasetSelect
                 })),
                 div({}, React.DOM.h4({}, "Select a SNP (optional):"), molgenis.ui.EntitySelectBox({
@@ -582,7 +416,7 @@
     var QTLTable = React.createFactory(QTLTableClass)
 
     $(function () {
-        $.get('/api/v2/lncrna_data_plots', function(data){
+        $.get('/api/v2/lncrna_data_plots?sort=Scripts', function(data){
             var plots = data.items;
             React.render(React.DOM.div(null, LncRNAExplorer({plots: plots})), $('#explorer')[0]);
         })
