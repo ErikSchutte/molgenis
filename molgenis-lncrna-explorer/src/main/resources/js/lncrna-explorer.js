@@ -5,7 +5,8 @@
 
     var LncRNAExplorerClass = React.createClass({
         displayName: 'LncRNAExplorer',
-        propTypes: {plots: React.PropTypes.array},
+        propTypes: {expression_plots: React.PropTypes.array,
+                    },
         getInitialState: function () {
             return {
                 genes: [],
@@ -13,7 +14,8 @@
                 genesToPlot: [],
                 windowSize: 250000,
                 datasets: [],
-                qtl: []
+                qtl: null,
+                qtlToPlot: []
             };
         },
         _onDatasetSelect: function (dataset) {
@@ -46,12 +48,49 @@
             return snp;
         },
         _onGenesFound: function (data) {
-
             this.setState({
                 genes: data.items,
                 genesToPlot: []
-            });
 
+            });
+            this._getQTLs();
+        },
+        _getQTLs: function() {
+            var geneNames;
+            geneNames = this.state.genes.map(function (gene) {
+                return gene.EnsemblGeneID
+            });
+            var genes = "";
+            for (i = 0; i < geneNames.length; i++) {
+                if ( i === (geneNames.length -1 )) {
+                    genes += "gene==" + geneNames[i];
+                } else {
+                    genes += "gene==" + geneNames[i] + ',';
+                }
+            }
+
+
+            $.get('/api/v2/lncrna_eqtl_basic_t0?').then(
+                this._updateQTLs);
+        },
+        _updateQTLs: function(eqtls) {
+            console.log(eqtls);
+            var geneNames;
+            var match = [];
+            geneNames = this.state.genes.map(function (gene) {
+                return gene.EnsemblGeneID
+            });
+            for (i = 0; i < geneNames.length; i++) {
+                eqtls.items.map(function (eqtl) {
+                    if (geneNames === eqtls.gene) {
+                        match.push(eqtl);
+                    }
+                });
+            }
+
+            this.setState({
+                qtl: match
+            });
         },
         _zoomIn: function () {
             this.setState({
@@ -81,10 +120,6 @@
             }
             return genes;
         },
-        _checkCorrespondingScripts: function () {
-
-
-        },
         _getSnp: function () {
             return this.state.snp.SnpRs;
         },
@@ -106,7 +141,7 @@
         },
         _filterForPlotTypes: function() {
             var self = this;
-            return this.props.plots.filter(function(plot) {
+            return this.props.expression_plots.filter(function(plot) {
                 return self.state.datasets.some(function(dataset){
                     return plot.Dataset.fullName === dataset.fullName;
                 });
@@ -122,32 +157,81 @@
             return chunks;
         },
         render: function () {
+
             var self = this;
             var genePlots = [];
             var qtlPlots = [];
 
             if (this.state.genesToPlot.length >= 2) {
-                var plots = this._filterForPlotTypes();
+               var plots = this._filterForPlotTypes();
 
                genePlots = this._chunk(plots.map(function(plot) {
-                    return GenePlot({
+                   return GenePlot({
                         url: '/scripts/' + plot.Scripts[0].name + '/run?genes=' + self._mapGenes('geneID')
                         + '&data=' + plot.Dataset.fullName,
                         title:  plot.Dataset.simpleName + ' ' + plot.Scripts[0].name,
                         inputType:'geneName'
                     })
-                }), 2).map(function(chunk){
-                   return div({
-                               className: "row"
-                           }, chunk);
+                }), 1).map(function(chunk){
+                       return div({
+                           style: {width:"90vw", marginLeft: "5vw", marginRight: "5vw"},
+                           className: "row"
+                       }, chunk);
                });
 
                 genePlots = [div({
-                    style: {width:"90vw", margin: "auto"},
+                    style: {width:"90vw", marginLeft: "5vw", marginRight: "5vw"},
                     className: "row col-md-6 col-md-offset-3"
                 }, GeneTable({
                     genes: this.state.genes
                 }))].concat(genePlots);
+
+
+                // if (this.state.snp) {
+                // 	genePlots.splice(0, 0, div({
+                // 		className: "row col-md-6 col-md-offset-3"
+                // 	}, GenePlot({
+                // 		url: '/scripts/' + 'lociPlots' + '/run?gsnp=' + this._getSnp() + '&chrLoci=' + this._getChr() + '&startLoci='
+                // 		+ this._getStartLoci() + '&endLoci=' + this._getEndLoci(),
+                // 		title: this._getSnp() + ", chr" + this._getChr() + ", " + this._getStartLoci() + "-" + this._getEndLoci() +
+                // 		'&data=',
+                // 	})))
+                // }
+                // this.state.qtl.map(function (gene) {
+                    // console.log(gene);
+                    // var genes = this._mapGenes('geneID');
+                    // console.log(genes);
+                    // if ( gene === genes.value ) {
+                    //     this._updateQTLs(gene);
+                    // }
+                // });
+
+                qtlPlots = [div({
+                    style: {width:"90vw", marginLeft: "5vw", maringRight:"5vw"},
+                            className: "row col-md-6 col-md-offset-3"
+                }, QTLTable({
+                    qtl: this.state.qtl
+                }))];
+                // qtlPlots = this._chunk(plots.map(function(plot) {
+                //     return qtlPlot({
+                //         url: '/scripts/' + plot.Scripts[0].name + '/run?genes=' + self._mapGenes('geneID')
+                //         + '&data=' + plot.Dataset.fullName,
+                //         title:  plot.Dataset.simpleName + ' ' + plot.Scripts[0].name,
+                //         inputType:'geneName'
+                //     })
+                // }), 1).map(function(chunk){
+                //     return div({
+                //         style: {width:"90vw", marginLeft: "5vw", marginRight: "5vw"},
+                //         className: "row"
+                //     }, chunk);
+                // });
+                //
+                // qtlPlots = [div({
+                //         style: {width:"90vw", marginLeft: "5vw", maringRight:"5vw"},
+                //         className: "row col-md-6 col-md-offset-3"
+                //     }, QTLTable({
+                //         qtl: this.state.qtl
+                //     }))].concat(qtlPlots);
             }
 
             return div({}, div({
@@ -248,10 +332,7 @@
                 }))),
                 genePlots,
                 qtlPlots);
-
-
         }
-
     });
 
     var LncRNAExplorer = React.createFactory(LncRNAExplorerClass);
@@ -288,14 +369,14 @@
             }
         },
         componentDidMount: function () {
-            var self = this
+            var self = this;
             var img = document.createElement('img')
 
             img.onload = function () {
                 self.setState({
                     loaded: true
                 })
-            }
+            };
             img.src = this.props.url
         }
     });
@@ -371,14 +452,14 @@
             }
         },
         componentDidMount: function () {
-            var self = this
-            var img = document.createElement('img')
+            var self = this;
+            var img = document.createElement('img');
 
             img.onload = function () {
                 self.setState({
                     loaded: true
                 })
-            }
+            };
             img.src = this.props.url
         }
     });
@@ -388,37 +469,43 @@
     var QTLTableClass = React.createClass({
         displayName: 'QTLTable',
         propTypes: {
-            genes: React.PropTypes.array.isRequired
+            qtl: React.PropTypes.array.isRequired
         },
 
+
         render: function () {
+
+
             var rows = this.props.qtl.map(function (qtl) {
                 return React.DOM.tr({className: rowClassName(qtl.qtlType), key: qtl.qtlType}, [
-                    React.DOM.td({key: 'ensemblID'}, qtl.EnsemblGeneID),
-                    React.DOM.td({key: 'name'}, qtl.AssociatedGeneName),
-                    React.DOM.td({key: 'genotype'}, qtl.Genotype),
-                    React.DOM.td({key: 'pvalue'}, qtl.PValue),
+                    React.DOM.td({key: 'SNP'}, qtl.SNP),
+                    React.DOM.td({key: 'gene'}, qtl.gene),
+                    React.DOM.td({key: 'beta'}, qtl.beta),
+                    React.DOM.td({key: 'tstat'}, qtl.tstat),
+                    React.DOM.td({key: 'pvalue'}, qtl.pvalue),
                     React.DOM.td({key: 'FDR'}, qtl.FDR)
                 ])
             });
             return React.DOM.div({style: {height: '300px', overflow: 'scroll'}},
                 React.DOM.table({className: 'table table-condensed'}, [React.DOM.thead({key: 'header'},
                     React.DOM.tr(null, [
-                        React.DOM.th({key: 'ensemblID'}, 'EnsemblGeneID'),
-                        React.DOM.th({key: 'name'}, 'Gene Name'),
-                        React.DOM.th({key: 'genotype'}, 'Genotype'),
-                        React.DOM.th({key: 'pvalue'}, 'P-value'),
+                        React.DOM.th({key: 'SNP'}, 'SNP'),
+                        React.DOM.th({key: 'gene'}, 'Ensemble Gene ID'),
+                        React.DOM.th({key: 'beta'}, 'Beta statistics'),
+                        React.DOM.th({key: 'tstat'}, 'T-statistics'),
+                        React.DOM.th({key: 'pvalue'}, 'P-Value'),
                         React.DOM.th({key: 'FDR'}, 'FDR')])),
                     React.DOM.tbody({key: 'body'}, rows)]));
         }
     });
 
-    var QTLTable = React.createFactory(QTLTableClass)
+    var QTLTable = React.createFactory(QTLTableClass);
 
     $(function () {
-        $.get('/api/v2/lncrna_data_plots?sort=Scripts', function(data){
+
+        $.get('/api/v2/lncrna_data_plots?sort=Scripts', function(data) {
             var plots = data.items;
-            React.render(React.DOM.div(null, LncRNAExplorer({plots: plots})), $('#explorer')[0]);
+            React.render(React.DOM.div(null, LncRNAExplorer({expression_plots: plots})), $('#explorer')[0]);
         })
 
 
