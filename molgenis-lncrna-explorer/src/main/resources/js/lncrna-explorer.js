@@ -1,11 +1,13 @@
 (function ($, molgenis) {
-    React.DOM.style({div: {width: "500px"}})
+    React.DOM.style({div: {width: "500px"}});
     var div = React.DOM.div;
     var span = React.DOM.span;
+    var Select2 = molgenis.ui.wrapper.Select2;
 
     var LncRNAExplorerClass = React.createClass({
         displayName: 'LncRNAExplorer',
-        propTypes: {expression_plots: React.PropTypes.array,
+        propTypes: {
+            expression_plots: React.PropTypes.array
                     },
         getInitialState: function () {
             return {
@@ -13,14 +15,16 @@
                 snp: null,
                 genesToPlot: [],
                 windowSize: 250000,
-                datasets: [],
+                datasets: [], // the selected dataset type
                 qtl: null,
                 qtlToPlot: []
             };
         },
-        _onDatasetSelect: function (dataset) {
+        _onDatasetSelect: function (data) {
+            // console.log('_onDatasetSelect', data.value.map(function (datasetType) {return datasetType.id;}));
+            var datasets = data.value && data.value.map(function (datasetType) {return datasetType.id;});
             this.setState({
-                datasets: dataset.value
+                datasets: datasets || []
             });
         },
         _onGenesSelection: function (genes) {
@@ -63,34 +67,43 @@
             var genes = "";
             for (i = 0; i < geneNames.length; i++) {
                 if ( i === (geneNames.length -1 )) {
-                    genes += "gene==" + geneNames[i];
+                    genes += "EnsembleGeneID==" + geneNames[i];
                 } else {
-                    genes += "gene==" + geneNames[i] + ',';
+                    genes += "EnsembleGeneID==" + geneNames[i] + ',';
                 }
             }
+            // console.log(genes);
 
-
-            $.get('/api/v2/lncrna_eqtl_basic_t0?').then(
+            $.get('/api/v2/lncrna_eqtl_basic?q='+genes+'&num=10000').then(
                 this._updateQTLs);
         },
         _updateQTLs: function(eqtls) {
-            console.log(eqtls);
+            // console.log(eqtls);
             var geneNames;
             var match = [];
             geneNames = this.state.genes.map(function (gene) {
                 return gene.EnsemblGeneID
             });
+            // console.log(geneNames);
             for (i = 0; i < geneNames.length; i++) {
                 eqtls.items.map(function (eqtl) {
-                    if (geneNames === eqtls.gene) {
+                    if (geneNames[i] === eqtls.EnsembleGeneID) {
                         match.push(eqtl);
                     }
                 });
             }
 
-            this.setState({
-                qtl: match
-            });
+            if ( match.length === 0 ) {
+                this.setState({
+                    qtl: "No Match Found"
+                });
+            } else {
+                this.setState({
+                    qtl: match
+                });
+            }
+
+
         },
         _zoomIn: function () {
             this.setState({
@@ -139,13 +152,23 @@
             })
 
         },
+        _createOptions: function () {
+
+            return this.props.expression_plots.map(function (data) {
+                return data
+            });
+
+        },
         _filterForPlotTypes: function() {
             var self = this;
-            return this.props.expression_plots.filter(function(plot) {
-                return self.state.datasets.some(function(dataset){
-                    return plot.Dataset.fullName === dataset.fullName;
-                });
-            })
+            console.log('selected_dataset', this.state.datasets);
+            console.log('expression_plots', this.props.expression_plots);
+            var result = this.props.expression_plots.filter( function(plot) {
+                return self.state.datasets.indexOf(plot.DataType) >= 0;
+            });
+            console.log('result of _filterForPlotTypes', result);
+            return result;
+
         },
         _chunk: function  (arr, len) {
             var chunks = [],
@@ -158,14 +181,19 @@
         },
         render: function () {
 
+            console.log('render() datasets=', this.state.datasets);
             var self = this;
             var genePlots = [];
             var qtlPlots = [];
+            var plots;
 
             if (this.state.genesToPlot.length >= 2) {
-               var plots = this._filterForPlotTypes();
-
-               genePlots = this._chunk(plots.map(function(plot) {
+                //console.log(this.props.expression_plots);
+                // console.log(this.state.dataset);
+                plots = this._filterForPlotTypes();
+                console.log(plots);
+                genePlots = this._chunk(plots.map(function(plot) {
+                    console.log(plot);
                    return GenePlot({
                         url: '/scripts/' + plot.Scripts[0].name + '/run?genes=' + self._mapGenes('geneID')
                         + '&data=' + plot.Dataset.fullName,
@@ -270,29 +298,18 @@
                     className: 'row'
                 }, div({
                     className: 'col-md-4 col-md-offset-4'
-                },
-                div({}, React.DOM.h4({}, "Select Dataset:"), molgenis.ui.EntitySelectBox({
-                    entity: 'entities',
-                    query: {
-                        operator: 'NESTED',
-                        nestedRules: [
-                            {field: 'package', operator: 'EQUALS', value: 'lncrna_data'},
-                            {operator: 'AND'},
-                            {operator: 'NOT'},
-                            {field: 'abstract', operator: 'EQUALS', value: 'true'}
-                        ]
-                    },
+                }, React.DOM.h4({}, "Select Dataset:"), molgenis.ui.EntitySelectBox({
+                    entity: 'lncrna_datasets_datasetType',
                     mode: 'view',
-                    name: "name",
+                    name: "dataset",
                     disabled: false,
                     readOnly: false,
                     multiple: true,
                     required: true,
-                    placeholder: 'Select a dataset',
+                    placeholder: 'Please select a dataset..',
                     focus: false,
-                    value: this.state.datasets,
                     onValueChange: this._onDatasetSelect
-                })),
+                }),
                 div({}, React.DOM.h4({}, "Select a SNP (optional):"), molgenis.ui.EntitySelectBox({
                     entity: 'lncrna_SnpsToPlot',
                     mode: 'view',
@@ -370,7 +387,7 @@
         },
         componentDidMount: function () {
             var self = this;
-            var img = document.createElement('img')
+            var img = document.createElement('img');
 
             img.onload = function () {
                 self.setState({
@@ -474,38 +491,44 @@
 
 
         render: function () {
+            var rows;
+            if(QTLTableClass.hasOwnProperty("qtl")){
+                rows = this.props.qtl.map(function (qtl) {
+                    return React.DOM.tr({className: rowClassName(qtl.qtlType), key: qtl.qtlType}, [
+                        React.DOM.td({key: 'SNPs'}, qtl.SNP),
+                        React.DOM.td({key: 'EnsembleGeneID'}, qtl.EnsembleGeneID),
+                        React.DOM.td({key: 'Statistic'}, qtl.stat),
+                        React.DOM.td({key: 'P_Value'}, qtl.pvalue),
+                        React.DOM.td({key: 'FDR'}, qtl.FDR),
+                        React.DOM.td({key: 'Beta_Score'}, qtl.beta)
+                    ])
+                });
 
 
-            var rows = this.props.qtl.map(function (qtl) {
-                return React.DOM.tr({className: rowClassName(qtl.qtlType), key: qtl.qtlType}, [
-                    React.DOM.td({key: 'SNP'}, qtl.SNP),
-                    React.DOM.td({key: 'gene'}, qtl.gene),
-                    React.DOM.td({key: 'beta'}, qtl.beta),
-                    React.DOM.td({key: 'tstat'}, qtl.tstat),
-                    React.DOM.td({key: 'pvalue'}, qtl.pvalue),
-                    React.DOM.td({key: 'FDR'}, qtl.FDR)
+            } else {
+                rows =  React.DOM.tr([
+                    React.DOM.td({key: 'SNPs'}, 'EMPTY')
                 ])
-            });
+            }
             return React.DOM.div({style: {height: '300px', overflow: 'scroll'}},
                 React.DOM.table({className: 'table table-condensed'}, [React.DOM.thead({key: 'header'},
                     React.DOM.tr(null, [
-                        React.DOM.th({key: 'SNP'}, 'SNP'),
-                        React.DOM.th({key: 'gene'}, 'Ensemble Gene ID'),
-                        React.DOM.th({key: 'beta'}, 'Beta statistics'),
-                        React.DOM.th({key: 'tstat'}, 'T-statistics'),
-                        React.DOM.th({key: 'pvalue'}, 'P-Value'),
-                        React.DOM.th({key: 'FDR'}, 'FDR')])),
+                        React.DOM.th({key: 'SNPs'}, 'SNP'),
+                        React.DOM.th({key: 'EnsembleGeneID'}, 'Ensemble Gene ID'),
+                        React.DOM.th({key: 'Statistic'}, 'Statistic'),
+                        React.DOM.th({key: 'P_Value'}, 'P-Value'),
+                        React.DOM.th({key: 'FDR'}, 'FDR'),
+                        React.DOM.th({key: 'Beta_Score'}, 'Beta_Score')])),
                     React.DOM.tbody({key: 'body'}, rows)]));
-        }
-    });
+    }});
 
     var QTLTable = React.createFactory(QTLTableClass);
 
     $(function () {
 
-        $.get('/api/v2/lncrna_data_plots?sort=Scripts', function(data) {
-            var plots = data.items;
-            React.render(React.DOM.div(null, LncRNAExplorer({expression_plots: plots})), $('#explorer')[0]);
+        $.get('/api/v2/lncrna_datasets_plots', function(datasettypes) {
+            var expression_plots = datasettypes.items;
+            React.render(React.DOM.div(null, LncRNAExplorer({expression_plots: expression_plots})), $('#explorer')[0]);
         })
 
 

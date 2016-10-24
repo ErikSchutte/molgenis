@@ -29,7 +29,7 @@
 	</div>
 
 	<div id="explorer"></div>
-    <div class="row">
+	<div class="row">
         <div class="col-md-11">
             <hr>
         </div>
