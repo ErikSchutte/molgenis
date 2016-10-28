@@ -76,12 +76,12 @@ import "../css/wrapper/select2.css";
 			}
 		},
 		_handleChange: function(value) {
-			console.log('_handleChange', value)
+			// console.log('_handleChange', value)
 			this.setState({value: value});
 			this.props.onChange(value);
 		},
 		_createSelect2: function(options) {
-			console.log('_createSelect2', options);
+
 			var $container = $(this.refs.select2.getDOMNode());
 
 			// create select2
@@ -92,12 +92,12 @@ import "../css/wrapper/select2.css";
 			}, options));
 			
 			$container.on('change', function(e, f) {
-				console.log('change', e)
+
 				this._handleChange($container.select2('data'));
 			}.bind(this));
 
 			$container.on('select2:select', function(e) {
-				console.log('select2:select', e)
+
 				this._handleChange($container.select2('data'));
 			}.bind(this));
 		},

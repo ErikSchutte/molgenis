@@ -25,7 +25,8 @@ public class RScriptExecutor
 	 * Path to R libraries
 	 */
 	private final String rLibs;
-
+	//Server: r_script_executable:/usr/bin/Rscript
+	//Local: r_script_executable:/usr/local/Cellar/r/3.3.1_2/R.framework/Versions/3.3/Resources/Rscript
 	@Autowired
 	public RScriptExecutor(@Value("${r_script_executable:/usr/local/Cellar/r/3.3.1_2/R.framework/Versions/3.3/Resources/Rscript}") String rScriptExecutable,
 			@Value("${r_libs:@null}") String rLibs)

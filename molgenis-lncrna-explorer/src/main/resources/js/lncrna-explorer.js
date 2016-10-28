@@ -1,8 +1,7 @@
 (function ($, molgenis) {
-    React.DOM.style({div: {width: "500px"}});
+    React.DOM.style({div: {width: "90vw"}});
     var div = React.DOM.div;
     var span = React.DOM.span;
-    var Select2 = molgenis.ui.wrapper.Select2;
 
     var LncRNAExplorerClass = React.createClass({
         displayName: 'LncRNAExplorer',
@@ -55,7 +54,6 @@
             this.setState({
                 genes: data.items,
                 genesToPlot: []
-
             });
             this._getQTLs();
         },
@@ -78,32 +76,34 @@
                 this._updateQTLs);
         },
         _updateQTLs: function(eqtls) {
-            // console.log(eqtls);
-            var geneNames;
-            var match = [];
-            geneNames = this.state.genes.map(function (gene) {
-                return gene.EnsemblGeneID
+            console.log("_updateQTLs", eqtls);
+            this.setState({
+                qtl: eqtls.items
             });
-            // console.log(geneNames);
-            for (i = 0; i < geneNames.length; i++) {
-                eqtls.items.map(function (eqtl) {
-                    if (geneNames[i] === eqtls.EnsembleGeneID) {
-                        match.push(eqtl);
-                    }
-                });
-            }
-
-            if ( match.length === 0 ) {
-                this.setState({
-                    qtl: "No Match Found"
-                });
-            } else {
-                this.setState({
-                    qtl: match
-                });
-            }
-
-
+            console.log("_updateQTLs after state", this.state.qtl);
+            // var geneNames;
+            // var match = [];
+            // geneNames = this.state.genes.map(function (gene) {
+            //     return gene.EnsemblGeneID
+            // });
+            // // console.log(geneNames);
+            // for (i = 0; i < geneNames.length; i++) {
+            //     eqtls.items.map(function (eqtl) {
+            //         if (geneNames[i] === eqtls.EnsembleGeneID) {
+            //             match.push(eqtl);
+            //         }
+            //     });
+            // }
+            //
+            // if ( match.length === 0 ) {
+            //     this.setState({
+            //         qtl: "No Match Found"
+            //     });
+            // } else {
+            //     this.setState({
+            //         qtl: match
+            //     });
+            // }
         },
         _zoomIn: function () {
             this.setState({
@@ -161,12 +161,12 @@
         },
         _filterForPlotTypes: function() {
             var self = this;
-            console.log('selected_dataset', this.state.datasets);
-            console.log('expression_plots', this.props.expression_plots);
+            // console.log('selected_dataset', this.state.datasets);
+            // console.log('expression_plots', this.props.expression_plots);
             var result = this.props.expression_plots.filter( function(plot) {
                 return self.state.datasets.indexOf(plot.DataType) >= 0;
             });
-            console.log('result of _filterForPlotTypes', result);
+            // console.log('result of _filterForPlotTypes', result);
             return result;
 
         },
@@ -181,19 +181,16 @@
         },
         render: function () {
 
-            console.log('render() datasets=', this.state.datasets);
+            // console.log('render() datasets=', this.state.datasets);
             var self = this;
             var genePlots = [];
             var qtlPlots = [];
             var plots;
 
             if (this.state.genesToPlot.length >= 2) {
-                //console.log(this.props.expression_plots);
-                // console.log(this.state.dataset);
                 plots = this._filterForPlotTypes();
-                console.log(plots);
                 genePlots = this._chunk(plots.map(function(plot) {
-                    console.log(plot);
+                    // console.log(plot);
                    return GenePlot({
                         url: '/scripts/' + plot.Scripts[0].name + '/run?genes=' + self._mapGenes('geneID')
                         + '&data=' + plot.Dataset.fullName,
@@ -202,7 +199,7 @@
                     })
                 }), 1).map(function(chunk){
                        return div({
-                           style: {width:"90vw", marginLeft: "5vw", marginRight: "5vw"},
+                           style: {width:"100vw", position: "center"},
                            className: "row"
                        }, chunk);
                });
@@ -234,12 +231,12 @@
                     // }
                 // });
 
-                qtlPlots = [div({
-                    style: {width:"90vw", marginLeft: "5vw", maringRight:"5vw"},
-                            className: "row col-md-6 col-md-offset-3"
-                }, QTLTable({
-                    qtl: this.state.qtl
-                }))];
+                // qtlPlots = [div({
+                //     style: {width:"90vw", marginLeft: "5vw", maringRight:"5vw"},
+                //             className: "row col-md-6 col-md-offset-3"
+                // }, QTLTable({
+                //     qtl: this.state.qtl
+                // }))];
                 // qtlPlots = this._chunk(plots.map(function(plot) {
                 //     return qtlPlot({
                 //         url: '/scripts/' + plot.Scripts[0].name + '/run?genes=' + self._mapGenes('geneID')
@@ -253,13 +250,13 @@
                 //         className: "row"
                 //     }, chunk);
                 // });
-                //
-                // qtlPlots = [div({
-                //         style: {width:"90vw", marginLeft: "5vw", maringRight:"5vw"},
-                //         className: "row col-md-6 col-md-offset-3"
-                //     }, QTLTable({
-                //         qtl: this.state.qtl
-                //     }))].concat(qtlPlots);
+
+                qtlPlots = [div({
+                        style: {width:"90vw", marginLeft: "5vw", maringRight:"5vw"},
+                        className: "row col-md-6 col-md-offset-3"
+                    }, QTLTable({
+                        qtl: this.state.qtl
+                    }))].concat(qtlPlots);
             }
 
             return div({}, div({
@@ -492,24 +489,30 @@
 
         render: function () {
             var rows;
-            if(QTLTableClass.hasOwnProperty("qtl")){
-                rows = this.props.qtl.map(function (qtl) {
-                    return React.DOM.tr({className: rowClassName(qtl.qtlType), key: qtl.qtlType}, [
-                        React.DOM.td({key: 'SNPs'}, qtl.SNP),
-                        React.DOM.td({key: 'EnsembleGeneID'}, qtl.EnsembleGeneID),
-                        React.DOM.td({key: 'Statistic'}, qtl.stat),
-                        React.DOM.td({key: 'P_Value'}, qtl.pvalue),
-                        React.DOM.td({key: 'FDR'}, qtl.FDR),
-                        React.DOM.td({key: 'Beta_Score'}, qtl.beta)
-                    ])
-                });
+
+                    rows = this.props.qtl.map(function (qtl) {
+                        console.log("render() QTLTableClass", qtl);
+                        return React.DOM.tr({className: rowClassName(qtl.qtlType), key: qtl.qtlType}, [
+                            React.DOM.td({key: 'SNPs'}, qtl.SNPs),
+                            React.DOM.td({key: 'EnsembleGeneID'}, qtl.EnsembleGeneID),
+                            React.DOM.td({key: 'Statistic'}, qtl.Statistic),
+                            React.DOM.td({key: 'P_Value'}, qtl.P_Value),
+                            React.DOM.td({key: 'FDR'}, qtl.FDR),
+                            React.DOM.td({key: 'Beta_Score'}, qtl.Beta_Score)
+                        ])
+                    });
+                // } else {
+                //     rows = React.DOM.tr({className: "NONE", key: "NONE"}, [
+                //         React.DOM.td({key: 'NO'}, "NO"),
+                //         React.DOM.td({key: 'HITS'}, "HITS"),
+                //         React.DOM.td({key: 'ARE'}, "ARE"),
+                //         React.DOM.td({key: 'FOUND'}, "FOUND"),
+                //         React.DOM.td({key: '.'}, "."),
+                //         React.DOM.td({key: '.'}, ".")
+                //         ])
+                // }
 
 
-            } else {
-                rows =  React.DOM.tr([
-                    React.DOM.td({key: 'SNPs'}, 'EMPTY')
-                ])
-            }
             return React.DOM.div({style: {height: '300px', overflow: 'scroll'}},
                 React.DOM.table({className: 'table table-condensed'}, [React.DOM.thead({key: 'header'},
                     React.DOM.tr(null, [
